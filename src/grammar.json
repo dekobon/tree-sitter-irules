@@ -1246,6 +1246,10 @@
               {
                 "type": "STRING",
                 "value": "!"
+              },
+              {
+                "type": "STRING",
+                "value": "not"
               }
             ]
           },
@@ -1604,8 +1608,17 @@
                 "name": "_expr"
               },
               {
-                "type": "STRING",
-                "value": "&&"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "&&"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "and"
+                  }
+                ]
               },
               {
                 "type": "SYMBOL",
@@ -1625,8 +1638,17 @@
                 "name": "_expr"
               },
               {
-                "type": "STRING",
-                "value": "||"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "||"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "or"
+                  }
+                ]
               },
               {
                 "type": "SYMBOL",

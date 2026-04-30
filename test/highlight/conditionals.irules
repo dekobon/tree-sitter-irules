@@ -29,6 +29,23 @@ if {$x == 0} {
     puts "fallback"
 }
 
+# Test word-form Boolean operators (and, or, not)
+
+if {$x > 0 and $y < 10} {
+#          ^ operator
+    puts "in range"
+}
+
+if {not [info exists var]} {
+#   ^ operator
+    puts "missing"
+}
+
+if {$a == 1 or $b == 2} {
+#           ^ operator
+    puts "match"
+}
+
 # Test nested conditionals
 
 if {[expr {$x > 10}]} {

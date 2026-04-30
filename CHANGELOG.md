@@ -102,6 +102,10 @@ is retained alongside a new project copyright.
 
 ### Added
 
+- **Grammar.** `and`, `or`, and `not` keyword operators added to
+  `binop_expr` / `unop_expr`, matching iRules' word-form Boolean operator
+  surface alongside the existing `&&` / `||` / `!` symbol operators
+  (#5).
 - **Grammar.** `when_event` rule for iRules event handlers
   (`when EVENT_NAME [priority N] [timing on|off] { body }`), with
   `event_name` constrained to a screaming-snake identifier and

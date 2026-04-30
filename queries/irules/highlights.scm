@@ -212,6 +212,9 @@
  "|"
  "&&"
  "||"
+ "and"
+ "or"
+ "not"
  ] @operator
 
 (variable_substitution) @variable

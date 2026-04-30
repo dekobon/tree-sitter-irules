@@ -280,7 +280,7 @@ module.exports = grammar({
       $._expr_atom_no_brace,
     ),
 
-    unary_expr: $ => prec.left(PREC.unary, seq(choice('-', '+', '~', '!'), $._expr)),
+    unary_expr: $ => prec.left(PREC.unary, seq(choice('-', '+', '~', '!', 'not'), $._expr)),
 
     binop_expr: $ => choice(
       prec.left(PREC.exp, seq($._expr, '**', $._expr)),
@@ -299,8 +299,8 @@ module.exports = grammar({
       prec.left(PREC.and_bit, seq($._expr, '&', $._expr)),
       prec.left(PREC.xor_bit, seq($._expr, '^', $._expr)),
       prec.left(PREC.or_bit, seq($._expr, '|', $._expr)),
-      prec.left(PREC.and_logical, seq($._expr, '&&', $._expr)),
-      prec.left(PREC.or_logical, seq($._expr, '||', $._expr)),
+      prec.left(PREC.and_logical, seq($._expr, choice('&&', 'and'), $._expr)),
+      prec.left(PREC.or_logical, seq($._expr, choice('||', 'or'), $._expr)),
     ),
 
     ternary_expr: $ => prec.left(PREC.ternary, seq($._expr, '?', $._expr, ':', $._expr)),

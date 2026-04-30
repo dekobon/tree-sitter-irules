@@ -835,7 +835,7 @@ when HTTP_REQUEST {
                     (simple_word)))))))))))
 
 ================================================================================
-known limitation: word operator not produces ERROR
+iRules 'not' keyword operator in event handler
 ================================================================================
 
 when HTTP_REQUEST {
@@ -850,19 +850,18 @@ when HTTP_REQUEST {
     body: (braced_word
       (if
         condition: (expr
-          (ERROR
-            (simple_word))
           (binop_expr
-            (command_substitution
-              (command
-                name: (simple_word)))
+            (unary_expr
+              (command_substitution
+                (command
+                  name: (simple_word))))
             (quoted_word)))
         consequence: (braced_word
           (command
             name: (simple_word)))))))
 
 ================================================================================
-known limitation: word operator and produces ERROR
+iRules 'and' keyword operator in event handler
 ================================================================================
 
 when HTTP_REQUEST {
@@ -882,13 +881,12 @@ when HTTP_REQUEST {
               (command_substitution
                 (command
                   name: (simple_word)))
-              (ERROR
-                (quoted_word)
-                (simple_word))
+              (quoted_word))
+            (binop_expr
               (command_substitution
                 (command
-                  name: (simple_word))))
-            (quoted_word)))
+                  name: (simple_word)))
+              (quoted_word))))
         consequence: (braced_word
           (command
             name: (simple_word)))))))

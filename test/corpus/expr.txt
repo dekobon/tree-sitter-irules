@@ -44,3 +44,122 @@ expr {$var eq "sec" && $bar}
           (quoted_word))
         (variable_substitution
           (id))))))
+
+================================================================================
+iRules 'and' keyword operator
+================================================================================
+
+when HTTP_REQUEST {
+  if { ([HTTP::uri] starts_with "/abc") and ([HTTP::host] equals "www.company.com") } {
+    pool pool1
+  }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (if
+        condition: (expr
+          (binop_expr
+            (binop_expr
+              (command_substitution
+                (command
+                  name: (simple_word)))
+              (quoted_word))
+            (binop_expr
+              (command_substitution
+                (command
+                  name: (simple_word)))
+              (quoted_word))))
+        consequence: (braced_word
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word))))))))
+
+================================================================================
+iRules 'or' keyword operator
+================================================================================
+
+when HTTP_REQUEST {
+  if { [HTTP::uri] starts_with "/a" or [HTTP::uri] starts_with "/b" } {
+    pool pool1
+  }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (if
+        condition: (expr
+          (binop_expr
+            (binop_expr
+              (command_substitution
+                (command
+                  name: (simple_word)))
+              (quoted_word))
+            (binop_expr
+              (command_substitution
+                (command
+                  name: (simple_word)))
+              (quoted_word))))
+        consequence: (braced_word
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word))))))))
+
+================================================================================
+iRules 'not' keyword operator
+================================================================================
+
+when HTTP_REQUEST {
+  if { not ([HTTP::uri] starts_with "/safe") } {
+    drop
+  }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (if
+        condition: (expr
+          (unary_expr
+            (binop_expr
+              (command_substitution
+                (command
+                  name: (simple_word)))
+              (quoted_word))))
+        consequence: (braced_word
+          (command
+            name: (simple_word)))))))
+
+================================================================================
+iRules 'and' / 'or' / 'not' combined
+================================================================================
+
+expr {not $a and $b or $c}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expr_cmd
+    (expr
+      (binop_expr
+        (binop_expr
+          (unary_expr
+            (variable_substitution
+              (id)))
+          (variable_substitution
+            (id)))
+        (variable_substitution
+          (id))))))
