@@ -1,28 +1,28 @@
 # Help
 ## ==============================
+TREE_SITTER := ./node_modules/.bin/tree-sitter
+
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z0-9_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 .PHONY: build
 build: parser/irules.so ## Build the tree-sitter-irules parser
 
-parser/irules.so: src/parser.c src/scanner.c ## Compile parser C files into shared object
+parser/irules.so: src/parser.c src/scanner.c | deps ## Compile parser C files into shared object
 	$(RM) $@
 	mkdir -p parser
-	tree-sitter build -o $@
+	$(TREE_SITTER) build -o $@
 
-src/parser.c: grammar.js deps ## Generate parser source from grammar.js
-	./node_modules/.bin/tree-sitter generate
+src/parser.c: grammar.js | deps ## Generate parser source from grammar.js
+	$(TREE_SITTER) generate
 
 .PHONY: test
 test: parser/irules.so ## Run tree-sitter tests
-	tree-sitter test
+	$(TREE_SITTER) test
 
 .PHONY: clean
 clean: ## Clean local environment
-	rm -rf build
-	rm -rf node_modules
-	rm -rf parser/irules.so
+	rm -rf build node_modules parser
 
 node_modules: package.json package-lock.json
 	npm install
@@ -34,7 +34,7 @@ deps: node_modules ## Install npm dependencies if needed
 .PHONY: version
 version: deps ## Tag new tree-sitter-irules semver
 	read -p "version: " version && \
-	./node_modules/.bin/tree-sitter version $$version
+	$(TREE_SITTER) version $$version
 
 ## Linting
 .PHONY: lint
