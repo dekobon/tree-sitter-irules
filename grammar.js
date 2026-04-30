@@ -83,6 +83,8 @@ module.exports = grammar({
 
     event_name: _ => /[A-Z][A-Z0-9_]*/,
 
+    // Canonical modifier set per F5 docs (clouddocs.f5.com/api/irules/when.html):
+    // priority and timing are the only documented modifiers. Verified 2026-04-30.
     event_modifier: $ => choice(
       seq('priority', field('priority', $.number)),
       seq('timing', field('timing', choice('on', 'off'))),
