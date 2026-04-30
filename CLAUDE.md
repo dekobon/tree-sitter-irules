@@ -50,6 +50,7 @@ in-progress work:
 | `review` | Read-only review of a diff, branch, PR, or commit range |
 | `audit-tests` | Finding corpus/highlight tests that pass for the wrong reason |
 | `fix-issue` | End-to-end workflow for fixing a GitHub issue |
+| `batch-fix` | Fixing multiple GitHub issues on a single integration branch, with parallel worktrees per area |
 | `issue-plan` | Reading an issue, building a sequential-thinking plan, rating it, applying `low-priority` |
 | `issue-triage` | Producing a read-only triage report (quick wins + groupings) over open issues |
 | `lessons-learned` | Drafting entries for `docs/lessons_learned.md` |
