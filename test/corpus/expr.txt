@@ -163,3 +163,156 @@ expr {not $a and $b or $c}
             (id)))
         (variable_substitution
           (id))))))
+
+================================================================================
+iRules 'starts_with' operator
+================================================================================
+
+expr {[HTTP::uri] starts_with "/api/"}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expr_cmd
+    (expr
+      (binop_expr
+        (command_substitution
+          (command
+            name: (simple_word)))
+        (quoted_word)))))
+
+================================================================================
+iRules 'ends_with' operator
+================================================================================
+
+expr {[HTTP::uri] ends_with ".json"}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expr_cmd
+    (expr
+      (binop_expr
+        (command_substitution
+          (command
+            name: (simple_word)))
+        (quoted_word)))))
+
+================================================================================
+iRules 'contains' operator
+================================================================================
+
+expr {[HTTP::header User-Agent] contains "bot"}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expr_cmd
+    (expr
+      (binop_expr
+        (command_substitution
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word))))
+        (quoted_word)))))
+
+================================================================================
+iRules 'equals' operator
+================================================================================
+
+expr {[HTTP::host] equals "www.company.com"}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expr_cmd
+    (expr
+      (binop_expr
+        (command_substitution
+          (command
+            name: (simple_word)))
+        (quoted_word)))))
+
+================================================================================
+iRules 'matches' operator
+================================================================================
+
+expr {[HTTP::uri] matches "/api/*"}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expr_cmd
+    (expr
+      (binop_expr
+        (command_substitution
+          (command
+            name: (simple_word)))
+        (quoted_word)))))
+
+================================================================================
+iRules 'matches_regex' operator
+================================================================================
+
+expr {[HTTP::uri] matches_regex "^/api/v"}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expr_cmd
+    (expr
+      (binop_expr
+        (command_substitution
+          (command
+            name: (simple_word)))
+        (quoted_word)))))
+
+================================================================================
+iRules 'matches_glob' operator
+================================================================================
+
+expr {[HTTP::uri] matches_glob "/img/*.png"}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expr_cmd
+    (expr
+      (binop_expr
+        (command_substitution
+          (command
+            name: (simple_word)))
+        (quoted_word)))))
+
+================================================================================
+iRules string operators mixed with and/or/not
+================================================================================
+
+expr {[HTTP::uri] starts_with "/api/" and not ([HTTP::host] equals "bad.com") or [HTTP::header User-Agent] contains "good"}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expr_cmd
+    (expr
+      (binop_expr
+        (binop_expr
+          (binop_expr
+            (command_substitution
+              (command
+                name: (simple_word)))
+            (quoted_word))
+          (unary_expr
+            (binop_expr
+              (command_substitution
+                (command
+                  name: (simple_word)))
+              (quoted_word))))
+        (binop_expr
+          (command_substitution
+            (command
+              name: (simple_word)
+              arguments: (word_list
+                (simple_word))))
+          (quoted_word))))))

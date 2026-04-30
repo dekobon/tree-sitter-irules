@@ -106,6 +106,10 @@ is retained alongside a new project copyright.
   `binop_expr` / `unop_expr`, matching iRules' word-form Boolean operator
   surface alongside the existing `&&` / `||` / `!` symbol operators
   (#5).
+- **Tests.** Corpus coverage for the seven iRules-specific expression
+  operators (`starts_with`, `ends_with`, `contains`, `equals`, `matches`,
+  `matches_regex`, `matches_glob`) and their interaction with the
+  word-form Boolean operators (#10).
 - **Grammar.** `when_event` rule for iRules event handlers
   (`when EVENT_NAME [priority N] [timing on|off] { body }`), with
   `event_name` constrained to a screaming-snake identifier and
