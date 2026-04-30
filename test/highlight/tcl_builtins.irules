@@ -1,0 +1,26 @@
+# TCL built-in commands tagged @function.builtin per highlights.scm.
+
+cd /tmp
+# <- function.builtin
+exec ls
+# <- function.builtin
+exit 0
+# <- function.builtin
+incr counter
+# <- function.builtin
+info exists var
+# <- function.builtin
+join $list ,
+# <- function.builtin
+puts "hello"
+# <- function.builtin
+regsub a $str b
+# <- function.builtin
+split $str ,
+# <- function.builtin
+subst $str
+# <- function.builtin
+trace add var write cb
+# <- function.builtin
+source script.tcl
+# <- function.builtin

@@ -1,0 +1,101 @@
+# iRules global commands tagged @function.builtin per F5 Commands master list.
+
+drop
+# <- function.builtin
+reject
+# <- function.builtin
+discard
+# <- function.builtin
+forward
+# <- function.builtin
+clone
+# <- function.builtin
+listen
+# <- function.builtin
+pool my_pool
+# <- function.builtin
+virtual my_vs
+# <- function.builtin
+node 10.0.0.1 80
+# <- function.builtin
+persist uie key
+# <- function.builtin
+snat automap
+# <- function.builtin
+snatpool my_snats
+# <- function.builtin
+table set k v
+# <- function.builtin
+session add uie key
+# <- function.builtin
+sharedvar X
+# <- function.builtin
+event disable all
+# <- function.builtin
+call my_proc 1 2
+# <- function.builtin
+clientside cmd
+# <- function.builtin
+serverside cmd
+# <- function.builtin
+peer cmd
+# <- function.builtin
+matchclass arg
+# <- function.builtin
+findclass arg
+# <- function.builtin
+findstr arg 0 5
+# <- function.builtin
+getfield arg : 2
+# <- function.builtin
+substr str 0 4
+# <- function.builtin
+domain host 2
+# <- function.builtin
+b64encode raw
+# <- function.builtin
+b64decode encoded
+# <- function.builtin
+decode_uri str
+# <- function.builtin
+crc32 str
+# <- function.builtin
+htonl 100
+# <- function.builtin
+htons 100
+# <- function.builtin
+ntohl 100
+# <- function.builtin
+ntohs 100
+# <- function.builtin
+member name port
+# <- function.builtin
+members short
+# <- function.builtin
+nodes
+# <- function.builtin
+active_members pool_x
+# <- function.builtin
+active_nodes
+# <- function.builtin
+accumulate
+# <- function.builtin
+after 5000
+# <- function.builtin
+collect 1024
+# <- function.builtin
+release
+# <- function.builtin
+connect 10.0.0.1:80
+# <- function.builtin
+recv 1024 conn
+# <- function.builtin
+send conn "data"
+# <- function.builtin
+node_name
+# <- function
+
+# Negative case: a user-defined procedure name must NOT match the
+# iRules-globals @function.builtin predicate.
+my_helper arg
+# <- function

@@ -1,0 +1,213 @@
+================================================================================
+Simple event handler
+================================================================================
+
+when HTTP_REQUEST {
+    log local0. "host=[HTTP::host]"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (quoted_word
+            (command_substitution
+              (command
+                name: (simple_word)))))))))
+
+================================================================================
+Event handler with priority modifier
+================================================================================
+
+when CLIENT_ACCEPTED priority 100 {
+    set client_ip [IP::client_addr]
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    modifier: (event_modifier
+      priority: (number))
+    body: (braced_word
+      (set
+        (id)
+        (command_substitution
+          (command
+            name: (simple_word)))))))
+
+================================================================================
+Multiple events in one rule
+================================================================================
+
+when CLIENT_ACCEPTED {
+    set start [clock clicks]
+}
+
+when CLIENT_CLOSED {
+    set end [clock clicks]
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (set
+        (id)
+        (command_substitution
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word)))))))
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (set
+        (id)
+        (command_substitution
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word))))))))
+
+================================================================================
+iRules starts_with operator
+================================================================================
+
+when HTTP_REQUEST {
+    if { [HTTP::uri] starts_with "/admin" } {
+        HTTP::respond 403
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (if
+        condition: (expr
+          (binop_expr
+            (command_substitution
+              (command
+                name: (simple_word)))
+            (quoted_word)))
+        consequence: (braced_word
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word))))))))
+
+================================================================================
+RULE_INIT with timing modifier
+================================================================================
+
+when RULE_INIT timing on {
+    set table_name "my_table"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    modifier: (event_modifier)
+    body: (braced_word
+      (set
+        (id)
+        (quoted_word)))))
+
+================================================================================
+priority and timing as plain command words outside when_event
+================================================================================
+
+priority high
+timing fast off
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (command
+    name: (simple_word)
+    arguments: (word_list
+      (simple_word)))
+  (command
+    name: (simple_word)
+    arguments: (word_list
+      (simple_word)
+      (simple_word))))
+
+================================================================================
+when as a plain command name (no event_name) parses as command
+================================================================================
+
+set when_value 1
+log local0. "when_value=$when_value"
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (set
+    (id)
+    (simple_word))
+  (command
+    name: (simple_word)
+    arguments: (word_list
+      (simple_word)
+      (quoted_word
+        (variable_substitution
+          (id))))))
+
+================================================================================
+contains and equals operators
+================================================================================
+
+when HTTP_REQUEST {
+    if { [HTTP::header User-Agent] contains "bot" } {
+        drop
+    } elseif { [HTTP::method] equals "POST" } {
+        log local0. "post"
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (if
+        condition: (expr
+          (binop_expr
+            (command_substitution
+              (command
+                name: (simple_word)
+                arguments: (word_list
+                  (simple_word))))
+            (quoted_word)))
+        consequence: (braced_word
+          (command
+            name: (simple_word)))
+        alternative: (elseif
+          condition: (expr
+            (binop_expr
+              (command_substitution
+                (command
+                  name: (simple_word)))
+              (quoted_word)))
+          consequence: (braced_word
+            (command
+              name: (simple_word)
+              arguments: (word_list
+                (simple_word)
+                (quoted_word)))))))))

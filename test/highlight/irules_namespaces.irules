@@ -1,0 +1,70 @@
+# iRules namespace highlight assertions sourced from F5 iRules docs.
+# AVOID multi-line header comments that combine a URL-heavy line and
+# a literal quoted regex like the namespace match pattern: that combo
+# triggers a tree-sitter test runner hang. Keep header to one line.
+
+CLIENTSSL::cipher_name
+# <- function.builtin
+SERVERSSL::cert
+# <- function.builtin
+URI::decode
+# <- function.builtin
+JSON::content
+# <- function.builtin
+X509::subject
+# <- function.builtin
+REWRITE::payload
+# <- function.builtin
+CATEGORY::lookup
+# <- function.builtin
+ACL::action
+# <- function.builtin
+ACCESS::session
+# <- function.builtin
+AAA::ldap
+# <- function.builtin
+AUTH::status
+# <- function.builtin
+ADAPT::enable
+# <- function.builtin
+BOTDEFENSE::action
+# <- function.builtin
+ANTIFRAUD::detected
+# <- function.builtin
+WEBSSO::enable
+# <- function.builtin
+SCTP::collect
+# <- function.builtin
+WS::message
+# <- function.builtin
+GTP::message
+# <- function.builtin
+TDS::login
+# <- function.builtin
+AVR::report
+# <- function.builtin
+HSL::send
+# <- function.builtin
+ILX::call
+# <- function.builtin
+ONECONNECT::reuse
+# <- function.builtin
+NAME::lookup
+# <- function.builtin
+RESOLVER::name_lookup
+# <- function.builtin
+REST::request
+# <- function.builtin
+XLAT::translate
+# <- function.builtin
+QOE::sample
+# <- function.builtin
+STATS::get
+# <- function.builtin
+DOSL7::profile
+# <- function.builtin
+CLASSIFICATION::result
+# <- function.builtin
+
+MY_CUSTOM_NS::helper
+# <- function
