@@ -110,6 +110,9 @@ is retained alongside a new project copyright.
   operators (`starts_with`, `ends_with`, `contains`, `equals`, `matches`,
   `matches_regex`, `matches_glob`) and their interaction with the
   word-form Boolean operators (#10).
+- **Grammar.** Dedicated `for` rule with `init`, `condition`, `increment`,
+  and `body` fields, replacing what previously parsed as a generic
+  command (#6).
 - **Grammar.** `when_event` rule for iRules event handlers
   (`when EVENT_NAME [priority N] [timing on|off] { body }`), with
   `event_name` constrained to a screaming-snake identifier and

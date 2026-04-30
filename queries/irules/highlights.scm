@@ -190,7 +190,7 @@
 [
  "while"
  "foreach"
- ; "for"
+ "for"
  ] @repeat @keyword
 
 [

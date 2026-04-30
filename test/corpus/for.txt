@@ -1,0 +1,153 @@
+================================================================================
+Basic numeric for loop
+================================================================================
+
+for {set i 0} {$i < 10} {incr i} {
+  log local0. $i
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (for
+    init: (braced_word
+      (set
+        (id)
+        (simple_word)))
+    condition: (expr
+      (binop_expr
+        (variable_substitution
+          (id))
+        (number)))
+    step: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word))))
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (variable_substitution
+            (id)))))))
+
+================================================================================
+For loop with empty body
+================================================================================
+
+for {set i 0} {$i < 5} {incr i} {}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (for
+    init: (braced_word
+      (set
+        (id)
+        (simple_word)))
+    condition: (expr
+      (binop_expr
+        (variable_substitution
+          (id))
+        (number)))
+    step: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word))))
+    body: (braced_word)))
+
+================================================================================
+For loop with break and continue
+================================================================================
+
+for {set i 0} {$i < 20} {incr i} {
+  if {$i == 5} {
+    continue
+  }
+  if {$i == 15} {
+    break
+  }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (for
+    init: (braced_word
+      (set
+        (id)
+        (simple_word)))
+    condition: (expr
+      (binop_expr
+        (variable_substitution
+          (id))
+        (number)))
+    step: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word))))
+    body: (braced_word
+      (if
+        condition: (expr
+          (binop_expr
+            (variable_substitution
+              (id))
+            (number)))
+        consequence: (braced_word
+          (command
+            name: (simple_word))))
+      (if
+        condition: (expr
+          (binop_expr
+            (variable_substitution
+              (id))
+            (number)))
+        consequence: (braced_word
+          (command
+            name: (simple_word)))))))
+
+================================================================================
+For loop with non-trivial init script
+================================================================================
+
+for {
+  set x 0
+  set y 100
+} {$x < $y} {incr x} {
+  puts "$x $y"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (for
+    init: (braced_word
+      (set
+        (id)
+        (simple_word))
+      (set
+        (id)
+        (simple_word)))
+    condition: (expr
+      (binop_expr
+        (variable_substitution
+          (id))
+        (variable_substitution
+          (id))))
+    step: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word))))
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (quoted_word
+            (variable_substitution
+              (id))
+            (variable_substitution
+              (id))))))))

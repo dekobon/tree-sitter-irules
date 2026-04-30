@@ -171,6 +171,10 @@
           "named": true
         },
         {
+          "type": "for",
+          "named": true
+        },
+        {
           "type": "foreach",
           "named": true
         },
@@ -375,6 +379,10 @@
         },
         {
           "type": "expr_cmd",
+          "named": true
+        },
+        {
+          "type": "for",
           "named": true
         },
         {
@@ -655,6 +663,136 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "for",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "array_index",
+            "named": true
+          },
+          {
+            "type": "braced_word",
+            "named": true
+          },
+          {
+            "type": "command_substitution",
+            "named": true
+          },
+          {
+            "type": "escaped_character",
+            "named": true
+          },
+          {
+            "type": "quoted_word",
+            "named": true
+          },
+          {
+            "type": "simple_word",
+            "named": true
+          },
+          {
+            "type": "unpack",
+            "named": true
+          },
+          {
+            "type": "variable_substitution",
+            "named": true
+          }
+        ]
+      },
+      "condition": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "expr",
+            "named": true
+          }
+        ]
+      },
+      "init": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "array_index",
+            "named": true
+          },
+          {
+            "type": "braced_word",
+            "named": true
+          },
+          {
+            "type": "command_substitution",
+            "named": true
+          },
+          {
+            "type": "escaped_character",
+            "named": true
+          },
+          {
+            "type": "quoted_word",
+            "named": true
+          },
+          {
+            "type": "simple_word",
+            "named": true
+          },
+          {
+            "type": "unpack",
+            "named": true
+          },
+          {
+            "type": "variable_substitution",
+            "named": true
+          }
+        ]
+      },
+      "step": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "array_index",
+            "named": true
+          },
+          {
+            "type": "braced_word",
+            "named": true
+          },
+          {
+            "type": "command_substitution",
+            "named": true
+          },
+          {
+            "type": "escaped_character",
+            "named": true
+          },
+          {
+            "type": "quoted_word",
+            "named": true
+          },
+          {
+            "type": "simple_word",
+            "named": true
+          },
+          {
+            "type": "unpack",
+            "named": true
+          },
+          {
+            "type": "variable_substitution",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -1059,6 +1197,10 @@
         },
         {
           "type": "expr_cmd",
+          "named": true
+        },
+        {
+          "type": "for",
           "named": true
         },
         {
@@ -1572,6 +1714,10 @@
   },
   {
     "type": "finally",
+    "named": false
+  },
+  {
+    "type": "for",
     "named": false
   },
   {

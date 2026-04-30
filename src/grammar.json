@@ -73,6 +73,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "for"
+        },
+        {
+          "type": "SYMBOL",
           "name": "foreach"
         },
         {
@@ -205,6 +209,47 @@
           "content": {
             "type": "SYMBOL",
             "name": "_concat_word"
+          }
+        }
+      ]
+    },
+    "for": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "for"
+        },
+        {
+          "type": "FIELD",
+          "name": "init",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_word"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "condition",
+          "content": {
+            "type": "SYMBOL",
+            "name": "expr"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "step",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_word"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "body",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_word"
           }
         }
       ]

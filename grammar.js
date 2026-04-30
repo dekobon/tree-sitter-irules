@@ -57,6 +57,7 @@ module.exports = grammar({
       $.procedure,
       $.set,
       $.try,
+      $.for,
       $.foreach,
       $.expr_cmd,
       $.while,
@@ -89,6 +90,14 @@ module.exports = grammar({
       $._word_simple, // exp
       $._concat_word, // string
       repeat($._concat_word),
+    ),
+
+    for: $ => seq(
+      'for',
+      field('init', $._word),
+      field('condition', $.expr),
+      field('step', $._word),
+      field('body', $._word),
     ),
 
     while: $ => seq('while', $.expr, $._word),
