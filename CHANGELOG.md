@@ -118,6 +118,12 @@ is retained alongside a new project copyright.
   tooling. Supports `-exact` / `-glob` / `-regexp` / `-nocase` / `--`
   switches, the dash-body fall-through form, bracketed values, and
   `#`-comments / `;` separators between arms (#7).
+- **Grammar.** Dedicated `dict_for`, `dict_update`, and `dict_with` rules
+  for the three `dict` script-body subcommands, each carrying a `body`
+  field. Value-returning forms (`dict get`, `dict set`, `dict create`,
+  `dict exists`, `dict keys`, `dict values`, `dict merge`, `dict size`,
+  `dict unset`, `dict incr`, `dict append`) continue to parse as generic
+  commands (#8).
 - **Grammar.** `when_event` rule for iRules event handlers
   (`when EVENT_NAME [priority N] [timing on|off] { body }`), with
   `event_name` constrained to a screaming-snake identifier and

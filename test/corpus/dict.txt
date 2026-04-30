@@ -1,0 +1,171 @@
+================================================================================
+dict for iterates over key-value pairs
+================================================================================
+
+dict for {k v} $d {
+  puts "$k = $v"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dict_for
+    variables: (arguments
+      (argument
+        name: (simple_word))
+      (argument
+        name: (simple_word)))
+    value: (variable_substitution
+      (id))
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (quoted_word
+            (variable_substitution
+              (id))
+            (variable_substitution
+              (id))))))))
+
+================================================================================
+dict for with command substitution value
+================================================================================
+
+dict for {k v} [dict create a 1 b 2] {
+  puts "$k: $v"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dict_for
+    variables: (arguments
+      (argument
+        name: (simple_word))
+      (argument
+        name: (simple_word)))
+    value: (command_substitution
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (simple_word)
+          (simple_word)
+          (simple_word)
+          (simple_word))))
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (quoted_word
+            (variable_substitution
+              (id))
+            (variable_substitution
+              (id))))))))
+
+================================================================================
+dict with exposes all keys as local variables
+================================================================================
+
+dict with myDict {
+  set key "new_value"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dict_with
+    variable: (simple_word)
+    body: (braced_word
+      (set
+        (id)
+        (quoted_word)))))
+
+================================================================================
+dict with nested key path
+================================================================================
+
+dict with myDict subkey {
+  puts $val
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dict_with
+    variable: (simple_word)
+    (simple_word)
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (variable_substitution
+            (id)))))))
+
+================================================================================
+dict update maps keys to local variables
+================================================================================
+
+dict update myDict key1 var1 key2 var2 {
+  set var1 "updated"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dict_update
+    variable: (simple_word)
+    (simple_word)
+    (simple_word)
+    (simple_word)
+    (simple_word)
+    body: (braced_word
+      (set
+        (id)
+        (quoted_word)))))
+
+================================================================================
+dict update with single key-variable pair
+================================================================================
+
+dict update myDict key1 var1 {
+  incr var1
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dict_update
+    variable: (simple_word)
+    (simple_word)
+    (simple_word)
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word))))))
+
+================================================================================
+dict get and dict set parse as generic commands
+================================================================================
+
+dict get $d key
+dict set d key "value"
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (command
+    name: (simple_word)
+    arguments: (word_list
+      (simple_word)
+      (variable_substitution
+        (id))
+      (simple_word)))
+  (command
+    name: (simple_word)
+    arguments: (word_list
+      (simple_word)
+      (simple_word)
+      (simple_word)
+      (quoted_word))))

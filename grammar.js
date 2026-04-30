@@ -65,6 +65,9 @@ module.exports = grammar({
       $.regexp,
       $.switch,
       $.when_event,
+      $.dict_for,
+      $.dict_update,
+      $.dict_with,
     ),
 
     // iRules event handler:
@@ -83,6 +86,33 @@ module.exports = grammar({
     event_modifier: $ => choice(
       seq('priority', field('priority', $.number)),
       seq('timing', field('timing', choice('on', 'off'))),
+    ),
+
+    // dict for {keyVar valueVar} dictValue body
+    dict_for: $ => seq(
+      'dict',
+      'for',
+      field('variables', $.arguments),
+      field('value', $._concat_word),
+      field('body', $.braced_word),
+    ),
+
+    // dict update dictVariable key varName ?key varName ...? body
+    dict_update: $ => seq(
+      'dict',
+      'update',
+      field('variable', $._concat_word),
+      repeat($._concat_word),
+      field('body', $.braced_word),
+    ),
+
+    // dict with dictVariable ?key ...? body
+    dict_with: $ => seq(
+      'dict',
+      'with',
+      field('variable', $._concat_word),
+      repeat($._concat_word),
+      field('body', $.braced_word),
     ),
 
     // regexp ?switches? exp string ?matchVar? ?subMatchVar subMatchVar ...?
@@ -154,7 +184,11 @@ module.exports = grammar({
     ),
 
     command: $ => seq(
-      field('name', $._word),
+      // The `dict` alias is required because dict_for/dict_update/dict_with
+      // promote the literal `dict` to a keyword; without it, generic forms
+      // like `dict get $d k` and `dict set d k v` would fail to lex as a
+      // command name.
+      field('name', choice($._word, alias('dict', $.simple_word))),
       optional(field('arguments', $.word_list)),
     ),
 

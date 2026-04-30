@@ -9,6 +9,12 @@
 (event_modifier
   ["priority" "timing" "on" "off"] @keyword)
 
+; dict script-body subcommands: dict for, dict update, dict with
+"dict" @keyword
+(dict_for "for" @repeat @keyword)
+(dict_update "update" @keyword)
+(dict_with "with" @keyword)
+
 ; Highlight iRules namespace-qualified commands such as
 ; HTTP::host, IP::client_addr, LB::server. Names are sourced from
 ; clouddocs.f5.com/api/irules/iRulesReference.html and Commands.html;
