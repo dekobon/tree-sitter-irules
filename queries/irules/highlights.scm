@@ -51,15 +51,15 @@
 
 "expr" @function.builtin @function
 
-; Highlight switch arguments as string
-(command
-    name: (simple_word) @keyword
-    arguments:
-        (word_list
-            (braced_word
-                (command
-                    name: (simple_word) @string)))
-    (#eq? @keyword "switch"))
+; switch keyword and default arm pattern (bare or {braced})
+"switch" @keyword
+(switch_arm
+  pattern: (simple_word) @keyword
+  (#eq? @keyword "default"))
+(switch_arm
+  pattern: (braced_word_simple
+    (simple_word) @keyword)
+  (#eq? @keyword "default"))
 
 ; `regexp` parses as its own grammar rule (see grammar.js), so it is
 ; captured by literal token below rather than via the generic command

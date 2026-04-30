@@ -97,6 +97,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "switch"
+        },
+        {
+          "type": "SYMBOL",
           "name": "when_event"
         }
       ]
@@ -209,6 +213,109 @@
           "content": {
             "type": "SYMBOL",
             "name": "_concat_word"
+          }
+        }
+      ]
+    },
+    "switch": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "switch"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "-exact"
+              },
+              {
+                "type": "STRING",
+                "value": "-glob"
+              },
+              {
+                "type": "STRING",
+                "value": "-regexp"
+              },
+              {
+                "type": "STRING",
+                "value": "-nocase"
+              },
+              {
+                "type": "STRING",
+                "value": "--"
+              }
+            ]
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "value",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_concat_word"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "switch_arm"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "comment"
+              },
+              {
+                "type": "STRING",
+                "value": ";"
+              }
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
+    "switch_arm": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "pattern",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "braced_word_simple"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_concat_word"
+              }
+            ]
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "body",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_word"
           }
         }
       ]

@@ -1,0 +1,351 @@
+================================================================================
+switch -glob with literal patterns
+================================================================================
+
+switch -glob $uri {
+    "/api/*" { pool api_pool }
+    "/static/*" { pool static_pool }
+    default { pool default_pool }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))))
+
+================================================================================
+switch -exact (default) with quoted patterns
+================================================================================
+
+switch -exact $value {
+    "one" { set x 1 }
+    "two" { set x 2 }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (set
+          (id)
+          (simple_word))))
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (set
+          (id)
+          (simple_word))))))
+
+================================================================================
+switch with default arm
+================================================================================
+
+switch $method {
+    "GET" { pool ro_pool }
+    default { pool rw_pool }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))))
+
+================================================================================
+switch with fall-through (dash body)
+================================================================================
+
+switch $x {
+    a -
+    b -
+    c { pool abc_pool }
+    default { drop }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (simple_word)
+      body: (simple_word))
+    (switch_arm
+      pattern: (simple_word)
+      body: (simple_word))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word))))))
+
+================================================================================
+switch -glob with bracketed value
+================================================================================
+
+switch -glob -- [HTTP::uri] {
+    "/api/*" { pool api_pool }
+    default { pool default_pool }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (command_substitution
+      (command
+        name: (simple_word)))
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))))
+
+================================================================================
+switch with all flags combined
+================================================================================
+
+switch -glob -nocase -- $uri {
+    "/api/*" { pool api_pool }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))))
+
+================================================================================
+switch with empty body
+================================================================================
+
+switch $x {
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (variable_substitution
+      (id))))
+
+================================================================================
+switch with single arm
+================================================================================
+
+switch $x {
+    default { return }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word))))))
+
+================================================================================
+switch -regexp with braced regex pattern
+================================================================================
+
+switch -regexp [HTTP::uri] {
+    {^/api/v[0-9]+/} { pool api_pool }
+    default { drop }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (command_substitution
+      (command
+        name: (simple_word)))
+    (switch_arm
+      pattern: (braced_word_simple
+        (simple_word)
+        (command_substitution
+          (command
+            name: (simple_word)))
+        (simple_word))
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word))))))
+
+================================================================================
+switch -nocase without end-of-options marker
+================================================================================
+
+switch -nocase $host {
+    "example.com" { pool main_pool }
+    "test.example.com" { pool test_pool }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))))
+
+================================================================================
+switch with comments between arms
+================================================================================
+
+switch -glob $uri {
+    # api routes
+    "/api/*" { pool api_pool }
+    # static assets
+    "/static/*" { pool static_pool }
+    default { pool default_pool }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (variable_substitution
+      (id))
+    (comment)
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))
+    (comment)
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))))
+
+================================================================================
+switch with semicolons separating arms
+================================================================================
+
+switch $x { "a" { puts a }; "b" { puts b } }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))))

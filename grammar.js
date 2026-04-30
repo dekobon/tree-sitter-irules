@@ -63,6 +63,7 @@ module.exports = grammar({
       $.while,
       $.catch,
       $.regexp,
+      $.switch,
       $.when_event,
     ),
 
@@ -90,6 +91,28 @@ module.exports = grammar({
       $._word_simple, // exp
       $._concat_word, // string
       repeat($._concat_word),
+    ),
+
+    // switch ?-exact|-glob|-regexp? ?-nocase? ?--? string { pattern body ... }
+    // Only the braced form is modeled structurally; the unbraced form is rare
+    // in iRules practice and not found in the corpus.
+    //
+    // Comments and explicit `;` separators are accepted between arms; without
+    // this the lexer would eat `# foo` as `pattern: "#" body: "foo"`, which is
+    // a real iRules-authored shape (TCL semantics aside, editor tooling needs
+    // to recognise the comment).
+    switch: $ => seq(
+      'switch',
+      repeat(choice('-exact', '-glob', '-regexp', '-nocase', '--')),
+      field('value', $._concat_word),
+      '{',
+      repeat(choice($.switch_arm, $.comment, ';')),
+      '}',
+    ),
+
+    switch_arm: $ => seq(
+      field('pattern', choice($.braced_word_simple, $._concat_word)),
+      field('body', $._word),
     ),
 
     for: $ => seq(

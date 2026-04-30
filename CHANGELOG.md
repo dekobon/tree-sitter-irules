@@ -113,6 +113,11 @@ is retained alongside a new project copyright.
 - **Grammar.** Dedicated `for` rule with `init`, `condition`, `increment`,
   and `body` fields, replacing what previously parsed as a generic
   command (#6).
+- **Grammar.** Dedicated `switch` rule with `switch_arm` children,
+  exposing pattern/body structure for folds, indents, and highlight
+  tooling. Supports `-exact` / `-glob` / `-regexp` / `-nocase` / `--`
+  switches, the dash-body fall-through form, bracketed values, and
+  `#`-comments / `;` separators between arms (#7).
 - **Grammar.** `when_event` rule for iRules event handlers
   (`when EVENT_NAME [priority N] [timing on|off] { body }`), with
   `event_name` constrained to a screaming-snake identifier and

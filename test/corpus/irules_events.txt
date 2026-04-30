@@ -337,37 +337,29 @@ when HTTP_REQUEST {
   (when_event
     event: (event_name)
     body: (braced_word
-      (command
-        name: (simple_word)
-        arguments: (word_list
-          (simple_word)
-          (simple_word)
-          (command_substitution
-            (command
-              name: (simple_word)))
-          (braced_word
-            (command
-              name: (quoted_word)
-              arguments: (word_list
-                (braced_word
-                  (command
-                    name: (simple_word)
-                    arguments: (word_list
-                      (simple_word))))))
-            (command
-              name: (quoted_word)
-              arguments: (word_list
-                (braced_word
-                  (command
-                    name: (simple_word)))))
+      (switch
+        value: (command_substitution
+          (command
+            name: (simple_word)))
+        (switch_arm
+          pattern: (quoted_word)
+          body: (braced_word
             (command
               name: (simple_word)
               arguments: (word_list
-                (braced_word
-                  (command
-                    name: (simple_word)
-                    arguments: (word_list
-                      (simple_word))))))))))))
+                (simple_word)))))
+        (switch_arm
+          pattern: (quoted_word)
+          body: (braced_word
+            (command
+              name: (simple_word))))
+        (switch_arm
+          pattern: (simple_word)
+          body: (braced_word
+            (command
+              name: (simple_word)
+              arguments: (word_list
+                (simple_word)))))))))
 
 ================================================================================
 switch with fall-through case
@@ -387,33 +379,27 @@ when HTTP_REQUEST {
   (when_event
     event: (event_name)
     body: (braced_word
-      (command
-        name: (simple_word)
-        arguments: (word_list
-          (command_substitution
+      (switch
+        value: (command_substitution
+          (command
+            name: (simple_word)))
+        (switch_arm
+          pattern: (quoted_word)
+          body: (simple_word))
+        (switch_arm
+          pattern: (quoted_word)
+          body: (braced_word
             (command
-              name: (simple_word)))
-          (braced_word
-            (command
-              name: (quoted_word)
+              name: (simple_word)
               arguments: (word_list
-                (simple_word)))
+                (simple_word)))))
+        (switch_arm
+          pattern: (quoted_word)
+          body: (braced_word
             (command
-              name: (quoted_word)
+              name: (simple_word)
               arguments: (word_list
-                (braced_word
-                  (command
-                    name: (simple_word)
-                    arguments: (word_list
-                      (simple_word))))))
-            (command
-              name: (quoted_word)
-              arguments: (word_list
-                (braced_word
-                  (command
-                    name: (simple_word)
-                    arguments: (word_list
-                      (simple_word))))))))))))
+                (simple_word)))))))))
 
 ================================================================================
 info exists on a static namespace variable
@@ -642,34 +628,27 @@ when HTTP_REQUEST {
   (when_event
     event: (event_name)
     body: (braced_word
-      (command
-        name: (simple_word)
-        arguments: (word_list
-          (simple_word)
-          (command_substitution
-            (command
-              name: (simple_word)))
-          (braced_word
-            (command
-              name: (braced_word
-                (command
-                  name: (simple_word)
-                  name: (command_substitution
-                    (command
-                      name: (simple_word)))
-                  name: (simple_word)))
-              arguments: (word_list
-                (braced_word
-                  (command
-                    name: (simple_word)
-                    arguments: (word_list
-                      (simple_word))))))
+      (switch
+        value: (command_substitution
+          (command
+            name: (simple_word)))
+        (switch_arm
+          pattern: (braced_word_simple
+            (simple_word)
+            (command_substitution
+              (command
+                name: (simple_word)))
+            (simple_word))
+          body: (braced_word
             (command
               name: (simple_word)
               arguments: (word_list
-                (braced_word
-                  (command
-                    name: (simple_word)))))))))))
+                (simple_word)))))
+        (switch_arm
+          pattern: (simple_word)
+          body: (braced_word
+            (command
+              name: (simple_word))))))))
 
 ================================================================================
 Real-world rate-limiter pattern with table operations
