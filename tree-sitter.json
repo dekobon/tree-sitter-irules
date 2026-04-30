@@ -1,0 +1,38 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "irules",
+      "camelcase": "Irules",
+      "title": "iRules",
+      "scope": "source.irules",
+      "file-types": ["irule", "irules"],
+      "injection-regex": "^irules?$",
+      "highlights": "queries/irules/highlights.scm",
+      "class-name": "TreeSitterIrules"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "F5 iRules grammar for tree-sitter (extends tree-sitter-tcl)",
+    "authors": [
+      {
+        "name": "Elijah Zupancic",
+        "email": "elijah@zupancic.name"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/dekobon/tree-sitter-irules"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true,
+    "zig": false
+  }
+}

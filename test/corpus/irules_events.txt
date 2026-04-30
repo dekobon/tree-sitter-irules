@@ -1,0 +1,914 @@
+================================================================================
+RULE_INIT event handler
+================================================================================
+
+when RULE_INIT {
+    set my_table "global_config"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (set
+        (id)
+        (quoted_word)))))
+
+================================================================================
+SERVER_CONNECTED with priority modifier
+================================================================================
+
+when SERVER_CONNECTED priority 50 {
+    log local0. "connected to [IP::server_addr]"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    modifier: (event_modifier
+      priority: (number))
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (quoted_word
+            (command_substitution
+              (command
+                name: (simple_word)))))))))
+
+================================================================================
+LB_SELECTED with LB::server command
+================================================================================
+
+when LB_SELECTED {
+    LB::server addr 10.0.0.1 port 80
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (simple_word)
+          (simple_word)
+          (simple_word))))))
+
+================================================================================
+PERSIST_DOWN with empty body
+================================================================================
+
+when PERSIST_DOWN {
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word)))
+
+================================================================================
+CLIENT_DATA with TCP::collect
+================================================================================
+
+when CLIENT_DATA {
+    TCP::collect 1024
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word))))))
+
+================================================================================
+HTTP_REQUEST with nested IP::addr command substitution
+================================================================================
+
+when HTTP_REQUEST {
+    if { [IP::addr [IP::client_addr] equals 10.0.0.0/8] } {
+        pool internal_pool
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (if
+        condition: (expr
+          (command_substitution
+            (command
+              name: (simple_word)
+              arguments: (word_list
+                (command_substitution
+                  (command
+                    name: (simple_word)))
+                (simple_word)
+                (simple_word)))))
+        consequence: (braced_word
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word))))))))
+
+================================================================================
+HTTP collect/release pattern across two events
+================================================================================
+
+when HTTP_REQUEST {
+    HTTP::collect 1024
+}
+
+when HTTP_REQUEST_DATA {
+    set payload [HTTP::payload]
+    HTTP::release
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)))))
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (set
+        (id)
+        (command_substitution
+          (command
+            name: (simple_word))))
+      (command
+        name: (simple_word)))))
+
+================================================================================
+HTTP_RESPONSE with HTTP::header insert
+================================================================================
+
+when HTTP_RESPONSE {
+    HTTP::header insert X-Backend [LB::server addr]
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (simple_word)
+          (command_substitution
+            (command
+              name: (simple_word)
+              arguments: (word_list
+                (simple_word)))))))))
+
+================================================================================
+CLIENTSSL_HANDSHAKE with SSL::cert
+================================================================================
+
+when CLIENTSSL_HANDSHAKE {
+    set subject [SSL::cert subject]
+    log local0. "client cert: $subject"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (set
+        (id)
+        (command_substitution
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word)))))
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (quoted_word
+            (variable_substitution
+              (id))))))))
+
+================================================================================
+DNS_REQUEST with ends_with operator
+================================================================================
+
+when DNS_REQUEST {
+    if { [DNS::question name] ends_with ".example.com" } {
+        pool dns_pool
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (if
+        condition: (expr
+          (binop_expr
+            (command_substitution
+              (command
+                name: (simple_word)
+                arguments: (word_list
+                  (simple_word))))
+            (quoted_word)))
+        consequence: (braced_word
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word))))))))
+
+================================================================================
+when modifiers in priority then timing order
+================================================================================
+
+when HTTP_REQUEST priority 100 timing on {
+    log local0. "hit"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    modifier: (event_modifier
+      priority: (number))
+    modifier: (event_modifier)
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (quoted_word))))))
+
+================================================================================
+when modifiers in timing then priority order
+================================================================================
+
+when HTTP_REQUEST timing on priority 100 {
+    log local0. "hit"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    modifier: (event_modifier)
+    modifier: (event_modifier
+      priority: (number))
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (quoted_word))))))
+
+================================================================================
+Quoted word concatenating multiple namespace command substitutions
+================================================================================
+
+when HTTP_REQUEST {
+    set tbl "[HTTP::host][HTTP::uri]"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (set
+        (id)
+        (quoted_word
+          (command_substitution
+            (command
+              name: (simple_word)))
+          (command_substitution
+            (command
+              name: (simple_word))))))))
+
+================================================================================
+switch -glob with end-of-options marker
+================================================================================
+
+when HTTP_REQUEST {
+    switch -glob -- [HTTP::uri] {
+        "/api/*" { pool api_pool }
+        "/admin*" { drop }
+        default { pool default_pool }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (simple_word)
+          (command_substitution
+            (command
+              name: (simple_word)))
+          (braced_word
+            (command
+              name: (quoted_word)
+              arguments: (word_list
+                (braced_word
+                  (command
+                    name: (simple_word)
+                    arguments: (word_list
+                      (simple_word))))))
+            (command
+              name: (quoted_word)
+              arguments: (word_list
+                (braced_word
+                  (command
+                    name: (simple_word)))))
+            (command
+              name: (simple_word)
+              arguments: (word_list
+                (braced_word
+                  (command
+                    name: (simple_word)
+                    arguments: (word_list
+                      (simple_word))))))))))))
+
+================================================================================
+switch with fall-through case
+================================================================================
+
+when HTTP_REQUEST {
+    switch [HTTP::method] {
+        "GET" -
+        "HEAD" { pool ro_pool }
+        "POST" { pool rw_pool }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (command_substitution
+            (command
+              name: (simple_word)))
+          (braced_word
+            (command
+              name: (quoted_word)
+              arguments: (word_list
+                (simple_word)))
+            (command
+              name: (quoted_word)
+              arguments: (word_list
+                (braced_word
+                  (command
+                    name: (simple_word)
+                    arguments: (word_list
+                      (simple_word))))))
+            (command
+              name: (quoted_word)
+              arguments: (word_list
+                (braced_word
+                  (command
+                    name: (simple_word)
+                    arguments: (word_list
+                      (simple_word))))))))))))
+
+================================================================================
+info exists on a static namespace variable
+================================================================================
+
+when HTTP_REQUEST {
+    if { [info exists static::cache_size] } {
+        log local0. "cache configured"
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (if
+        condition: (expr
+          (command_substitution
+            (command
+              name: (simple_word)
+              arguments: (word_list
+                (simple_word)
+                (simple_word)))))
+        consequence: (braced_word
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word)
+              (quoted_word))))))))
+
+================================================================================
+Sideband connect send recv
+================================================================================
+
+when CLIENT_ACCEPTED {
+    set conn [connect -timeout 1000 10.0.0.1:80]
+    send -timeout 500 $conn "GET / HTTP/1.0\r\n\r\n"
+    set response [recv -timeout 1000 $conn]
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (set
+        (id)
+        (command_substitution
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word)
+              (simple_word)
+              (simple_word)))))
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (simple_word)
+          (variable_substitution
+            (id))
+          (quoted_word
+            (escaped_character)
+            (escaped_character)
+            (escaped_character)
+            (escaped_character))))
+      (set
+        (id)
+        (command_substitution
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word)
+              (simple_word)
+              (variable_substitution
+                (id)))))))))
+
+================================================================================
+table incr with -subtable and event disable all
+================================================================================
+
+when HTTP_REQUEST {
+    set count [table incr -subtable hits [IP::client_addr]]
+    if { $count > 100 } {
+        drop
+        event disable all
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (set
+        (id)
+        (command_substitution
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word)
+              (simple_word)
+              (simple_word)
+              (command_substitution
+                (command
+                  name: (simple_word)))))))
+      (if
+        condition: (expr
+          (binop_expr
+            (variable_substitution
+              (id))
+            (number)))
+        consequence: (braced_word
+          (command
+            name: (simple_word))
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word)
+              (simple_word))))))))
+
+================================================================================
+CLIENTSSL_CLIENTHELLO with SSL::extensions
+================================================================================
+
+when CLIENTSSL_CLIENTHELLO {
+    set sni [SSL::extensions -type 0]
+    log local0. "sni=$sni"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (set
+        (id)
+        (command_substitution
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word)
+              (simple_word)))))
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (quoted_word
+            (variable_substitution
+              (id))))))))
+
+================================================================================
+SIP_REQUEST with SIP::header
+================================================================================
+
+when SIP_REQUEST {
+    if { [SIP::header value From] contains "trusted.example.com" } {
+        pool sip_pool
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (if
+        condition: (expr
+          (binop_expr
+            (command_substitution
+              (command
+                name: (simple_word)
+                arguments: (word_list
+                  (simple_word)
+                  (simple_word))))
+            (quoted_word)))
+        consequence: (braced_word
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word))))))))
+
+================================================================================
+WS_CLIENT_FRAME with WS::frame
+================================================================================
+
+when WS_CLIENT_FRAME {
+    log local0. "frame=[WS::frame]"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (quoted_word
+            (command_substitution
+              (command
+                name: (simple_word)))))))))
+
+================================================================================
+switch -regexp with braced regular expression
+================================================================================
+
+when HTTP_REQUEST {
+    switch -regexp [HTTP::uri] {
+        {^/api/v[0-9]+/} { pool api_pool }
+        default { drop }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (simple_word)
+          (command_substitution
+            (command
+              name: (simple_word)))
+          (braced_word
+            (command
+              name: (braced_word
+                (command
+                  name: (simple_word)
+                  name: (command_substitution
+                    (command
+                      name: (simple_word)))
+                  name: (simple_word)))
+              arguments: (word_list
+                (braced_word
+                  (command
+                    name: (simple_word)
+                    arguments: (word_list
+                      (simple_word))))))
+            (command
+              name: (simple_word)
+              arguments: (word_list
+                (braced_word
+                  (command
+                    name: (simple_word)))))))))))
+
+================================================================================
+Real-world rate-limiter pattern with table operations
+================================================================================
+
+# Adapted from clouddocs.f5.com/api/irules/HTTP-URI-Request-Limiter.html.
+# Original used word operators (not, and); rewritten with symbolic forms
+# (!, &&) to avoid the documented grammar gap. See README "Known limitations".
+when HTTP_REQUEST {
+    set ip_addr [IP::client_addr]
+    set tbl "limit_$ip_addr:[HTTP::host][HTTP::uri]"
+
+    set banTime [table lookup -notouch -subtable $tbl banTime]
+    if { $banTime > 0 } {
+        log local0. "BANNED: $tbl, banTime=$banTime"
+        drop
+        event disable all
+        return
+    }
+
+    set requestCnt [table lookup -notouch -subtable $tbl requestCnt]
+    if { $requestCnt == "" } {
+        table set -subtable $tbl requestCnt 1 10 10
+    } else {
+        set requestCnt [table incr -notouch -subtable $tbl requestCnt]
+        if { $requestCnt > 20 } {
+            table delete -subtable $tbl requestCnt
+            table set -subtable $tbl banTime 10 10
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (comment)
+  (comment)
+  (comment)
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (set
+        (id)
+        (command_substitution
+          (command
+            name: (simple_word))))
+      (set
+        (id)
+        (quoted_word
+          (variable_substitution
+            (id))
+          (command_substitution
+            (command
+              name: (simple_word)))
+          (command_substitution
+            (command
+              name: (simple_word)))))
+      (set
+        (id)
+        (command_substitution
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word)
+              (simple_word)
+              (simple_word)
+              (variable_substitution
+                (id))
+              (simple_word)))))
+      (if
+        condition: (expr
+          (binop_expr
+            (variable_substitution
+              (id))
+            (number)))
+        consequence: (braced_word
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word)
+              (quoted_word
+                (variable_substitution
+                  (id))
+                (variable_substitution
+                  (id)))))
+          (command
+            name: (simple_word))
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word)
+              (simple_word)))
+          (command
+            name: (simple_word))))
+      (set
+        (id)
+        (command_substitution
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word)
+              (simple_word)
+              (simple_word)
+              (variable_substitution
+                (id))
+              (simple_word)))))
+      (if
+        condition: (expr
+          (binop_expr
+            (variable_substitution
+              (id))
+            (quoted_word)))
+        consequence: (braced_word
+          (command
+            name: (simple_word)
+            arguments: (word_list
+              (simple_word)
+              (simple_word)
+              (variable_substitution
+                (id))
+              (simple_word)
+              (simple_word)
+              (simple_word)
+              (simple_word))))
+        alternative: (else
+          consequence: (braced_word
+            (set
+              (id)
+              (command_substitution
+                (command
+                  name: (simple_word)
+                  arguments: (word_list
+                    (simple_word)
+                    (simple_word)
+                    (simple_word)
+                    (variable_substitution
+                      (id))
+                    (simple_word)))))
+            (if
+              condition: (expr
+                (binop_expr
+                  (variable_substitution
+                    (id))
+                  (number)))
+              consequence: (braced_word
+                (command
+                  name: (simple_word)
+                  arguments: (word_list
+                    (simple_word)
+                    (simple_word)
+                    (variable_substitution
+                      (id))
+                    (simple_word)))
+                (command
+                  name: (simple_word)
+                  arguments: (word_list
+                    (simple_word)
+                    (simple_word)
+                    (variable_substitution
+                      (id))
+                    (simple_word)
+                    (simple_word)
+                    (simple_word)))))))))))
+
+================================================================================
+known limitation: word operator not produces ERROR
+================================================================================
+
+when HTTP_REQUEST {
+    if { not [HTTP::host] equals "example.com" } { drop }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (if
+        condition: (expr
+          (ERROR
+            (simple_word))
+          (binop_expr
+            (command_substitution
+              (command
+                name: (simple_word)))
+            (quoted_word)))
+        consequence: (braced_word
+          (command
+            name: (simple_word)))))))
+
+================================================================================
+known limitation: word operator and produces ERROR
+================================================================================
+
+when HTTP_REQUEST {
+    if { [HTTP::method] equals "GET" and [HTTP::host] equals "x" } { drop }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (if
+        condition: (expr
+          (binop_expr
+            (binop_expr
+              (command_substitution
+                (command
+                  name: (simple_word)))
+              (ERROR
+                (quoted_word)
+                (simple_word))
+              (command_substitution
+                (command
+                  name: (simple_word))))
+            (quoted_word)))
+        consequence: (braced_word
+          (command
+            name: (simple_word)))))))
+
+================================================================================
+known limitation: set with namespace-qualified target produces ERROR
+================================================================================
+
+when RULE_INIT {
+    set static::config_table "value"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (when_event
+    event: (event_name)
+    body: (braced_word
+      (set
+        (id)
+        (ERROR
+          (simple_word))
+        (quoted_word)))))

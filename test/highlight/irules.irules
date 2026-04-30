@@ -1,0 +1,58 @@
+# iRules-specific highlight assertions: when, event names, namespace
+# commands, iRules expression operators.
+
+# `when` keyword + event_name as @constant.
+when CLIENT_ACCEPTED {
+# <- keyword
+#    ^ constant
+    set start [clock clicks]
+}
+
+# Event handler with priority modifier: priority + number.
+when HTTP_REQUEST priority 100 {
+# <- keyword
+#    ^ constant
+#                  ^ keyword
+#                           ^ number
+    HTTP::respond 200 content "ok"
+#   ^ function.builtin
+}
+
+# Event handler with timing modifier: timing + on/off.
+when RULE_INIT timing on {
+# <- keyword
+#    ^ constant
+#              ^ keyword
+#                     ^ keyword
+    set table_name "my_table"
+}
+
+# Namespace-qualified built-in commands across several namespaces.
+HTTP::host
+# <- function.builtin
+IP::client_addr
+# <- function.builtin
+TCP::client_port
+# <- function.builtin
+SSL::cert
+# <- function.builtin
+LB::server
+# <- function.builtin
+
+# A user-defined command name (no namespace, not a builtin) must be tagged
+# as @function (the generic command tag). Confirms the namespace regex and
+# builtin #any-of? predicates do not over-match.
+my_user_helper "arg"
+# <- function
+
+# iRules expression operators inside an expr context are tagged @operator.
+if { [HTTP::uri] starts_with "/admin" } { drop }
+#                ^ operator
+if { [HTTP::method] equals "POST" } { drop }
+#                   ^ operator
+if { [HTTP::header User-Agent] contains "bot" } { drop }
+#                              ^ operator
+if { [HTTP::host] ends_with ".internal" } { drop }
+#                 ^ operator
+if { [HTTP::path] matches_glob "/api/*" } { drop }
+#                 ^ operator
