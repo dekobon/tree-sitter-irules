@@ -21,3 +21,33 @@ ${myvar}
 "$myvar"
 # <- string
 #   ^ variable
+
+# $tmm_id is a built-in scalar; the id inside must highlight as
+# @variable.builtin, not the generic @variable.
+$tmm_id
+# <- variable
+# ^ variable.builtin
+
+set x $tmm_id
+# <- keyword
+#   ^ variable
+#     ^ variable
+#      ^ variable.builtin
+
+# static:: namespace variables persist across event invocations.
+# set target with static:: prefix:
+set static::my_table "data"
+# <- keyword
+#   ^ variable.builtin
+
+# $static::foo as a set value (parser keeps full namespace-qualified id):
+set val $static::foo
+# <- keyword
+#   ^ variable
+#       ^ variable
+#        ^ variable.builtin
+
+# $static::counter inside an expr (parser also keeps the full id):
+if { $static::counter > 0 } {}
+#    ^ variable
+#     ^ variable.builtin

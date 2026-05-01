@@ -40,15 +40,33 @@
   name: (_) @variable
 )
 
+; iRules-exposed built-in scalars and namespaces. The `tcl_*` and
+; `argc`/`argv` interpreter variables from upstream TCL are not present in
+; the BIG-IP iRules runtime and have been pruned.
+;
+; $tmm_id — the built-in TMM identifier variable
+(variable_substitution
+  (id) @variable.builtin
+  (#eq? @variable.builtin "tmm_id"))
+
 (set (id) @variable)
+
+; static:: namespace — variables that persist across event invocations
+(variable_substitution
+  (id) @variable.builtin
+  (#match? @variable.builtin "^static::"))
+
+(set
+  (id) @variable.builtin
+  (#match? @variable.builtin "^static::"))
+
 
 (argument
   name: (_) @variable.parameter @variable
 )
 
-; iRules-exposed built-in scalars and namespaces. The `tcl_*` and
-; `argc`/`argv` interpreter variables from upstream TCL are not present in
-; the BIG-IP iRules runtime and have been pruned.
+; Bare-word fallback for rare contexts where static or tmm_id appear as a
+; simple_word outside variable_substitution or set.
 ((simple_word) @variable.builtin @variable
                (#any-of? @variable.builtin
                 "static"
