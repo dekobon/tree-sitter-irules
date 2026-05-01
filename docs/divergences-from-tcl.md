@@ -145,8 +145,8 @@ grammar accepts them:
 - `or`: `grammar.js:371` — added to `or_logical` precedence alongside
   `||`.
 
-Note: README "Known limitations" historically claimed these were not
-recognised. The grammar does recognise them; the README claim is stale.
+The README "Known limitations" section no longer lists these as
+unrecognised — the stale claim was removed.
 
 ### G6. `for` (M)
 

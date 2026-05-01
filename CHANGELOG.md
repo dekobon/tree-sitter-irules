@@ -90,8 +90,8 @@ below.
   AI-assisted contributions.
 
 **Known divergences in semantics from upstream TCL** are documented in
-the README "Known limitations" section (`and`/`or`/`not` word operators,
-`set static::foo bar`, plain `matches` operator).
+the README "Known limitations" section (`set static::foo bar`, `regexp`
+switches, partial `switch` / `try` modeling, plain `matches` operator).
 
 ## [Unreleased]
 
@@ -110,7 +110,7 @@ is retained alongside a new project copyright.
   operators (`starts_with`, `ends_with`, `contains`, `equals`, `matches`,
   `matches_regex`, `matches_glob`) and their interaction with the
   word-form Boolean operators (#10).
-- **Grammar.** Dedicated `for` rule with `init`, `condition`, `increment`,
+- **Grammar.** Dedicated `for` rule with `init`, `condition`, `step`,
   and `body` fields, replacing what previously parsed as a generic
   command (#6).
 - **Grammar.** Dedicated `switch` rule with `switch_arm` children,
@@ -142,9 +142,9 @@ is retained alongside a new project copyright.
   and `static` / `tmm_id` as `@variable.builtin`. Names sourced from
   F5's `iRulesReference.html`, `Commands.html`, and `Operators.html`.
 - **Tests.** Corpus tests under `test/corpus/irules.txt` (8 tests) and
-  `test/corpus/irules_events.txt` (26 tests, including 3 ERROR-pinning
-  regressions for documented gaps — `and`/`or`/`not` word operators and
-  `set static::foo bar`) covering event handler shapes, iRules string
+  `test/corpus/irules_events.txt` (26 tests, including an ERROR-pinning
+  regression for `set static::foo bar`) covering event handler shapes,
+  iRules string
   operators, modifier ordering, nested command substitution, switch
   forms, sideband I/O, and a rate-limiter pattern. Highlight assertions
   in `test/highlight/irules.irules` (22), `irules_namespaces.irules`

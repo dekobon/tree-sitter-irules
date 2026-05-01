@@ -67,10 +67,12 @@ event spellings in a linter, not the parser.
 
 iRules is a TCL 8.4 dialect (per F5
 [K6091](https://my.f5.com/manage/s/article/K6091)). TCL 8.5 features
-(`dict`, `lassign`, `try`/`on error`/`finally`, `lmap`, etc.) are
+(`dict`, `lassign`, `**` operator, expanded `lsearch` switches) and
+TCL 8.6 features (`try`/`on error`/`finally`, `lmap`, `throw`) are
 available on BIG-IP 12.x and later when explicitly enabled. The grammar
-follows the `tree-sitter-tcl` baseline, so 8.5 syntax parses fine — but
-keep in mind that older BIG-IP runtimes will reject those constructs.
+follows the `tree-sitter-tcl` baseline, so 8.5/8.6 syntax parses
+fine — but keep in mind that older BIG-IP runtimes will reject those
+constructs.
 
 A subset of TCL commands is **disabled at runtime** in iRules for safety
 (`exec`, `file`, `open`, `socket`, and others; see F5's
@@ -80,16 +82,25 @@ parse as ordinary TCL commands. Linting/validation is out of scope here.
 
 ## Known limitations
 
-- **Word-form expression operators** (`and`, `or`, `not`) listed on F5's
-  [`Operators.html`](https://clouddocs.f5.com/api/irules/Operators.html)
-  are not yet recognised inside `expr` contexts. Use the symbolic forms
-  `&&`, `||`, `!` until this is fixed. Code that uses the word forms
-  parses with `(ERROR ...)` nodes around the affected expression.
 - **`set` with namespace-qualified target** (`set static::foo bar`) parses
   with an `(ERROR ...)` around the `::foo` segment because the `set` rule
   binds to a single `id` and the immediate-`::` extension does not fire
   in that position. Workaround: read via `info exists static::foo`, or
   initialise the variable through `namespace eval` for now.
+- **`regexp` switches are not modeled.** The dedicated `regexp` rule
+  (`grammar.js:121-126`) treats the first word after `regexp` as the
+  pattern. Valid TCL/iRules forms like `regexp -nocase exp string` or
+  `regexp -all -inline -- exp string` fall back to a generic command
+  parse instead of the structured `regexp` node.
+- **`switch` is partially modeled.** Only the braced-arms form is
+  supported. TCL's un-braced trailing `pattern body pattern body …`
+  syntax is not modeled. TCL 8.5+ `-matchvar varName` and
+  `-indexvar varName` options for `switch -regexp` are not recognised
+  and produce `(ERROR ...)` nodes.
+- **`try` is partially modeled.** The grammar accepts
+  `try body ?on error vars handler? ?finally script?` but not the
+  full TCL 8.6 surface: `trap pattern vars handler` clauses and
+  multiple handler clauses are not supported.
 - **Plain `matches` operator** (no `_glob`/`_regex` suffix) is accepted by
   the grammar but is **not** documented on F5's Operators page. It is
   retained for upstream `tree-sitter-tcl` compatibility; prefer
