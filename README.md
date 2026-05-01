@@ -38,14 +38,14 @@ through to the generic `@function` capture.
 
 | Group | Namespaces |
 |-------|-----------|
-| Transport / IP | `IP`, `TCP`, `UDP`, `SCTP`, `LINK`, `VLAN`, `ROUTE` |
-| TLS | `SSL`, `CLIENTSSL`, `SERVERSSL`, `TLS`, `X509` |
-| HTTP | `HTTP`, `HTTP2`, `HTTP3`, `WS`, `WEBSOCKET`, `CACHE`, `COMPRESS`, `REWRITE`, `STREAM`, `URI`, `JSON`, `XML` |
-| Other application | `DNS`, `SIP`, `SDP`, `RTSP`, `FTP`, `MQTT`, `FIX`, `DIAMETER`, `RADIUS`, `ICAP`, `GTP`, `TDS`, `NTLM`, `MR`, `GENERICMESSAGE` |
-| Load balancing / virtual | `LB`, `POOL`, `NODE`, `MEMBER`, `VIRTUAL`, `SNAT`, `SNATPOOL`, `PERSIST`, `PROFILE`, `PROXY`, `ONECONNECT`, `RATELIMIT`, `SCRUBBER`, `GTM`, `TMM`, `TMSH` |
-| Access / security | `ACL`, `ACCESS`, `ACCESS2`, `AAA`, `AUTH`, `WEBSSO`, `VDI`, `WAM`, `TAP`, `ASM`, `BOTDEFENSE`, `ANTIFRAUD`, `DOSL7`, `CATEGORY`, `CLASSIFICATION`, `CLASSIFY`, `CLASS` |
-| Adaptation / data | `ADAPT`, `PEM`, `AVR`, `STATS`, `TABLE`, `SESSION`, `EVENT`, `LOG`, `LOGGING`, `MEMORY`, `RESOLV`, `RESOLVER`, `REST`, `XLAT`, `NAME`, `HSL`, `ILX`, `QOE`, `MATRIX`, `NS` |
-| Crypto / encoding | `CRYPTO`, `AES`, `DES`, `RC4`, `HMAC`, `MD5`, `SHA1`, `SHA256`, `SHA384`, `SHA512`, `B64`, `HEX`, `BIGNUM` |
+| Transport / IP | `IP`, `TCP`, `UDP`, `SCTP`, `LINK`, `VLAN`, `ROUTE`, `DATAGRAM`, `DHCP`, `FLOW`, `FLOWTABLE`, `IPFIX`, `LSN`, `NSH`, `PCP` |
+| TLS | `SSL`, `CLIENTSSL`, `SERVERSSL`, `TLS`, `X509`, `IKE` |
+| HTTP | `HTTP`, `HTTP2`, `HTTP3`, `WS`, `WEBSOCKET`, `CACHE`, `COMPRESS`, `REWRITE`, `STREAM`, `URI`, `JSON`, `XML`, `HTML`, `SSE` |
+| Other application | `DNS`, `SIP`, `SDP`, `RTSP`, `FTP`, `MQTT`, `FIX`, `DIAMETER`, `RADIUS`, `ICAP`, `GTP`, `TDS`, `NTLM`, `MR`, `GENERICMESSAGE`, `CONNECTOR`, `DNSMSG`, `IMAP`, `POP3`, `SIPALG`, `SMTPS`, `SOCKS` |
+| Load balancing / virtual | `LB`, `POOL`, `NODE`, `MEMBER`, `VIRTUAL`, `SNAT`, `SNATPOOL`, `PERSIST`, `PROFILE`, `PROXY`, `ONECONNECT`, `RATELIMIT`, `SCRUBBER`, `GTM`, `TMM`, `TMSH`, `BWC`, `ISESSION`, `IVS`, `L7CHECK` |
+| Access / security | `ACL`, `ACCESS`, `ACCESS2`, `AAA`, `AUTH`, `WEBSSO`, `VDI`, `WAM`, `TAP`, `ASM`, `BOTDEFENSE`, `ANTIFRAUD`, `DOSL7`, `CATEGORY`, `CLASSIFICATION`, `CLASSIFY`, `CLASS`, `ADM`, `APM`, `ECA`, `POLICY`, `PSC` |
+| Adaptation / data | `ADAPT`, `PEM`, `AVR`, `STATS`, `TABLE`, `SESSION`, `EVENT`, `LOG`, `LOGGING`, `MEMORY`, `RESOLV`, `RESOLVER`, `REST`, `XLAT`, `NAME`, `HSL`, `ILX`, `QOE`, `MATRIX`, `NS`, `ISTATS`, `MESSAGE`, `SIDEBAND` |
+| Crypto / encoding | `CRYPTO`, `AES`, `DES`, `RC4`, `HMAC`, `MD5`, `SHA1`, `SHA256`, `SHA384`, `SHA512`, `B64`, `HEX`, `BIGNUM`, `ASN1` |
 
 **Global (non-namespaced) iRules commands** also tagged as
 `@function.builtin`: `accumulate`, `active_members`, `active_nodes`,

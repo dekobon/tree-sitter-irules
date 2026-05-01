@@ -102,6 +102,16 @@ is retained alongside a new project copyright.
 
 ### Added
 
+- **Queries.** Added 31 missing F5-documented iRules namespace prefixes
+  (`ADM`, `APM`, `ASN1`, `BWC`, `CONNECTOR`, `DATAGRAM`, `DHCP`,
+  `DNSMSG`, `ECA`, `FLOW`, `FLOWTABLE`, `HTML`, `IKE`, `IMAP`, `IPFIX`,
+  `ISESSION`, `ISTATS`, `IVS`, `L7CHECK`, `LSN`, `MESSAGE`, `NSH`,
+  `PCP`, `POLICY`, `POP3`, `PSC`, `SIDEBAND`, `SIPALG`, `SMTPS`,
+  `SOCKS`, `SSE`) to the `@function.builtin` capture regex in
+  `highlights.scm` (total: 136 prefixes). Updated the README namespace
+  table to match. Added highlight assertions for 10 representative new
+  namespaces in `test/highlight/irules_namespaces.irules` (#12).
+
 - **Grammar.** `and`, `or`, and `not` keyword operators added to
   `binop_expr` / `unop_expr`, matching iRules' word-form Boolean operator
   surface alongside the existing `&&` / `||` / `!` symbol operators

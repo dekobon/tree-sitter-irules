@@ -66,5 +66,26 @@ DOSL7::profile
 CLASSIFICATION::result
 # <- function.builtin
 
+APM::policy_result
+# <- function.builtin
+HTML::decode
+# <- function.builtin
+FLOW::id
+# <- function.builtin
+LSN::xlat
+# <- function.builtin
+SIPALG::disable
+# <- function.builtin
+BWC::policy
+# <- function.builtin
+POLICY::result
+# <- function.builtin
+ASN1::element
+# <- function.builtin
+SIDEBAND::connect
+# <- function.builtin
+DNSMSG::answer
+# <- function.builtin
+
 MY_CUSTOM_NS::helper
 # <- function
