@@ -253,15 +253,37 @@ command name. The aliased token still presents as `simple_word` in the
 AST so highlights and downstream tooling are unaffected. Comment in
 `grammar.js:189-192` records this.
 
-### G10. Inherited rules with no behavioural change
+### G10. `regexp` switch options (U)
 
-**Every rule not enumerated in G1-G9 is byte-for-byte identical to
+`grammar.js:122-140` — upstream `tree-sitter-tcl` models `regexp` with a
+pattern and a string but no option flags. This grammar extends the rule
+with the full set of TCL 8.6 `regexp` switches:
+
+```
+regexp:
+  'regexp'
+  ('-about' | '-expanded' | '-indices' | '-line' | '-linestop'
+   | '-lineanchor' | '-nocase' | '-all' | '-inline'
+   | ('-start' _concat_word)
+   | '--')*
+  exp:    _word_simple
+  string: _concat_word
+  _concat_word*      // optional matchVar subMatchVar…
+```
+
+Without the switches, forms like `regexp -nocase {pat} $s` or
+`regexp -all -inline -- {pat} $s` would fall through to a generic
+`command` node instead of the structured `regexp` node.
+
+### G11. Inherited rules with no behavioural change
+
+**Every rule not enumerated in G1-G10 is byte-for-byte identical to
 upstream `tree-sitter-tcl`.** Verified by `diff` of the two `grammar.js`
-files: outside G1-G9 there are zero hunks.
+files: outside G1-G10 there are zero hunks.
 
 Concretely, the following are unchanged: the precedence table
 (`grammar.js:1-18`); `externals`, `inline`, `extras`; `source_file`,
-`_terminator`, `comment`, `_command`; `regexp`, `while`, `expr_cmd`,
+`_terminator`, `comment`, `_command`; `while`, `expr_cmd`,
 `foreach`, `global`, `namespace`, `try`, `finally`; `command` (apart
 from the G9 `dict` alias); `word_list`, `unpack`, `_word`,
 `_word_simple`, `_concat_word`; the `id` / `_id_immediate` / `_ident`
@@ -302,6 +324,15 @@ the braced-arms form.
 See G7 above. Both options exist in TCL 8.5+ but are not modeled, so
 `switch -regexp -matchvar v …` and `switch -regexp -indexvar v …`
 currently parse with `(ERROR …)`.
+
+### `try` is partially modeled
+
+The inherited `try` rule (`grammar.js`) accepts
+`try body ?on error vars handler? ?finally script?` but not the full
+TCL 8.6 surface: `trap pattern vars handler` clauses and multiple
+consecutive handler clauses are not supported. Code that uses `trap` or
+stacks more than one `on`/`trap` clause will parse as a generic command
+rather than a structured `try` node.
 
 ---
 

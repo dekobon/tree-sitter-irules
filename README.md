@@ -87,11 +87,6 @@ parse as ordinary TCL commands. Linting/validation is out of scope here.
   binds to a single `id` and the immediate-`::` extension does not fire
   in that position. Workaround: read via `info exists static::foo`, or
   initialise the variable through `namespace eval` for now.
-- **`regexp` switches are not modeled.** The dedicated `regexp` rule
-  (`grammar.js:121-126`) treats the first word after `regexp` as the
-  pattern. Valid TCL/iRules forms like `regexp -nocase exp string` or
-  `regexp -all -inline -- exp string` fall back to a generic command
-  parse instead of the structured `regexp` node.
 - **`switch` is partially modeled.** Only the braced-arms form is
   supported. TCL's un-braced trailing `pattern body pattern body …`
   syntax is not modeled. TCL 8.5+ `-matchvar varName` and

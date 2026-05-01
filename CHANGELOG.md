@@ -75,7 +75,7 @@ below.
 
 - iRules-specific corpus tests added under `test/corpus/irules.txt`
   (8 tests) and `test/corpus/irules_events.txt` (26 tests, including
-  3 ERROR-pinning regressions for documented gaps). Inherited TCL
+  an ERROR-pinning regression for a documented gap). Inherited TCL
   corpus tests are kept verbatim as a regression suite for the TCL
   baseline.
 - iRules-specific highlight assertions added in
@@ -90,8 +90,8 @@ below.
   AI-assisted contributions.
 
 **Known divergences in semantics from upstream TCL** are documented in
-the README "Known limitations" section (`set static::foo bar`, `regexp`
-switches, partial `switch` / `try` modeling, plain `matches` operator).
+the README "Known limitations" section (`set static::foo bar`, partial
+`switch` / `try` modeling, plain `matches` operator).
 
 ## [Unreleased]
 
