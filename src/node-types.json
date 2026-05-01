@@ -1989,11 +1989,43 @@
     "named": false
   },
   {
+    "type": "-about",
+    "named": false
+  },
+  {
+    "type": "-all",
+    "named": false
+  },
+  {
     "type": "-exact",
     "named": false
   },
   {
+    "type": "-expanded",
+    "named": false
+  },
+  {
     "type": "-glob",
+    "named": false
+  },
+  {
+    "type": "-indices",
+    "named": false
+  },
+  {
+    "type": "-inline",
+    "named": false
+  },
+  {
+    "type": "-line",
+    "named": false
+  },
+  {
+    "type": "-lineanchor",
+    "named": false
+  },
+  {
+    "type": "-linestop",
     "named": false
   },
   {
@@ -2002,6 +2034,10 @@
   },
   {
     "type": "-regexp",
+    "named": false
+  },
+  {
+    "type": "-start",
     "named": false
   },
   {

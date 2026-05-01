@@ -322,6 +322,67 @@
           "value": "regexp"
         },
         {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "-about"
+              },
+              {
+                "type": "STRING",
+                "value": "-expanded"
+              },
+              {
+                "type": "STRING",
+                "value": "-indices"
+              },
+              {
+                "type": "STRING",
+                "value": "-line"
+              },
+              {
+                "type": "STRING",
+                "value": "-linestop"
+              },
+              {
+                "type": "STRING",
+                "value": "-lineanchor"
+              },
+              {
+                "type": "STRING",
+                "value": "-nocase"
+              },
+              {
+                "type": "STRING",
+                "value": "-all"
+              },
+              {
+                "type": "STRING",
+                "value": "-inline"
+              },
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "-start"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_concat_word"
+                  }
+                ]
+              },
+              {
+                "type": "STRING",
+                "value": "--"
+              }
+            ]
+          }
+        },
+        {
           "type": "SYMBOL",
           "name": "_word_simple"
         },

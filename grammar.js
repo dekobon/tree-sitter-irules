@@ -118,8 +118,22 @@ module.exports = grammar({
     ),
 
     // regexp ?switches? exp string ?matchVar? ?subMatchVar subMatchVar ...?
+    // Switches from TCL 8.6 regexp man page; -- ends switch list.
     regexp: $ => seq(
       'regexp',
+      repeat(choice(
+        '-about',
+        '-expanded',
+        '-indices',
+        '-line',
+        '-linestop',
+        '-lineanchor',
+        '-nocase',
+        '-all',
+        '-inline',
+        seq('-start', $._concat_word),
+        '--',
+      )),
       $._word_simple, // exp
       $._concat_word, // string
       repeat($._concat_word),

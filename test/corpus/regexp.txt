@@ -14,3 +14,105 @@ regexp {\d} $var m b
       (id))
     (simple_word)
     (simple_word)))
+
+================================================================================
+regexp -nocase single switch
+================================================================================
+
+regexp -nocase {\d+} $str m
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (regexp
+    (braced_word_simple
+      (escaped_character)
+      (simple_word))
+    (variable_substitution
+      (id))
+    (simple_word)))
+
+================================================================================
+regexp -nocase -all -- multiple switches with end-of-options
+================================================================================
+
+regexp -nocase -all -- {\d+} $str m
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (regexp
+    (braced_word_simple
+      (escaped_character)
+      (simple_word))
+    (variable_substitution
+      (id))
+    (simple_word)))
+
+================================================================================
+regexp -start with index argument
+================================================================================
+
+regexp -start 5 {\d+} $str
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (regexp
+    (simple_word)
+    (braced_word_simple
+      (escaped_character)
+      (simple_word))
+    (variable_substitution
+      (id))))
+
+================================================================================
+regexp -all -inline without match variables
+================================================================================
+
+regexp -all -inline {\w+} $str
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (regexp
+    (braced_word_simple
+      (escaped_character)
+      (simple_word))
+    (variable_substitution
+      (id))))
+
+================================================================================
+regexp -indices -nocase with multiple match variables
+================================================================================
+
+regexp -indices -nocase {\d+} $str matchInfo subMatch1
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (regexp
+    (braced_word_simple
+      (escaped_character)
+      (simple_word))
+    (variable_substitution
+      (id))
+    (simple_word)
+    (simple_word)))
+
+================================================================================
+regexp -line composite switch
+================================================================================
+
+regexp -line {\d+} $str m
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (regexp
+    (braced_word_simple
+      (escaped_character)
+      (simple_word))
+    (variable_substitution
+      (id))
+    (simple_word)))
