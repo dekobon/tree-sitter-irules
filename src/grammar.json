@@ -1241,8 +1241,13 @@
               "type": "SEQ",
               "members": [
                 {
-                  "type": "SYMBOL",
-                  "name": "id"
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "simple_word"
+                  },
+                  "named": true,
+                  "value": "id"
                 },
                 {
                   "type": "CHOICE",

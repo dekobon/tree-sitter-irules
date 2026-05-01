@@ -278,7 +278,7 @@ module.exports = grammar({
     set: $ => seq(
       'set',
       choice(
-        seq($.id, optional($.array_index)),
+        seq(alias($.simple_word, $.id), optional($.array_index)),
         seq('$', '{', /[^}]+/, '}'),
       ),
       optional($._word_simple),
