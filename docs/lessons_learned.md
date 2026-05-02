@@ -24,7 +24,9 @@ A query pattern like `"expr" @function.builtin @function` assigns two capture na
 
 **`expr` keyword missed in the same sweep** (#14, `fafa45d`). The `expr` literal had the identical dual-capture pattern but was overlooked when the TCL builtins fix was applied. It was only caught later when the highlight queries were audited systematically.
 
-**Lesson:** Never use dual captures for "fallback" purposes — the editor, not the query author, decides which tag wins. When fixing a capture pattern, grep the entire highlights file for the same anti-pattern (`@<specific> @<generic>`) rather than fixing only the instance reported in the issue.
+**Same pathology, separate patterns** (#18 follow-up review). Two distinct query patterns that target the same node share the dual-capture problem even though neither pattern has two `@captures` on one line. The previous queries had `(set (id) @variable)` and `(set (id) @variable.builtin (#match? "^static::"))` — both fire on `set static::foo …`, leaving the winner up to editor pattern-priority. The fix added a `#not-match?` predicate to the generic pattern so the two are mutually exclusive at the predicate level rather than at the editor level.
+
+**Lesson:** Never use dual captures for "fallback" purposes — the editor, not the query author, decides which tag wins. The same applies when *separate* patterns target the same node: gate them with mutually exclusive predicates (`#match?` / `#not-match?`, `#eq?` / `#not-eq?`) rather than relying on pattern order. When fixing a capture pattern, grep the entire highlights file for the same anti-pattern (`@<specific> @<generic>` on one line, or two patterns on the same node-shape) rather than fixing only the instance reported in the issue.
 
 ---
 
