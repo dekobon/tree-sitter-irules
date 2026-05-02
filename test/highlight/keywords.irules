@@ -189,3 +189,9 @@ try {
 #     ^ keyword
     puts $r
 }
+
+# Integer result codes intentionally fall through to the generic @number
+# capture; pin that so a future broadening of the on-code keyword query
+# (e.g. dropping the #any-of? predicate) surfaces as a test failure.
+try { x } on 42 {r o} { puts $r }
+#            ^ number
