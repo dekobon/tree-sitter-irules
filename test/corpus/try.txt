@@ -254,6 +254,38 @@ try {
                 (id)))))))))
 
 ================================================================================
+try with integer result code
+================================================================================
+
+try {
+    custom_throw 42
+} on 42 {result opts} {
+    puts "got 42"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (try
+    (braced_word
+      (command
+        (simple_word)
+        (word_list
+          (simple_word))))
+    (on_handler
+      (simple_word)
+      (arguments
+        (argument
+          (simple_word))
+        (argument
+          (simple_word)))
+      (braced_word
+        (command
+          (simple_word)
+          (word_list
+            (quoted_word)))))))
+
+================================================================================
 try body only (no handlers, no finally)
 ================================================================================
 
