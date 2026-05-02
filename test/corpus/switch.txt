@@ -37,6 +37,165 @@ switch -glob $uri {
             (simple_word)))))))
 
 ================================================================================
+switch -regexp -matchvar with braced arms
+================================================================================
+
+switch -regexp -matchvar m $value {
+    {^/api/} { pool api_pool }
+    default { drop }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    (simple_word)
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (braced_word_simple
+        (simple_word))
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word))))))
+
+================================================================================
+switch -regexp -indexvar with braced arms
+================================================================================
+
+switch -regexp -indexvar idx $value {
+    {^/api/} { pool api_pool }
+    default { drop }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    (simple_word)
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (braced_word_simple
+        (simple_word))
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word))))))
+
+================================================================================
+switch -regexp -matchvar -indexvar combined
+================================================================================
+
+switch -regexp -matchvar m -indexvar idx -- $value {
+    {^/api/} { pool api_pool }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    (simple_word)
+    (simple_word)
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (braced_word_simple
+        (simple_word))
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))))
+
+================================================================================
+switch un-braced form with two arms
+================================================================================
+
+switch $x pattern1 { body1 } pattern2 { body2 }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word))))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word))))))
+
+================================================================================
+switch un-braced form with default
+================================================================================
+
+switch $x pattern1 { body1 } default { body2 }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word))))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word))))))
+
+================================================================================
+switch un-braced form with flags
+================================================================================
+
+switch -glob -- $x "/api/*" { pool api_pool } default { pool default_pool }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch
+    value: (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (quoted_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word)
+          arguments: (word_list
+            (simple_word)))))))
+
+
+================================================================================
 switch -exact (default) with quoted patterns
 ================================================================================
 

@@ -1542,11 +1542,35 @@
       "required": false,
       "types": [
         {
+          "type": "array_index",
+          "named": true
+        },
+        {
+          "type": "command_substitution",
+          "named": true
+        },
+        {
           "type": "comment",
           "named": true
         },
         {
+          "type": "escaped_character",
+          "named": true
+        },
+        {
+          "type": "quoted_word",
+          "named": true
+        },
+        {
+          "type": "simple_word",
+          "named": true
+        },
+        {
           "type": "switch_arm",
+          "named": true
+        },
+        {
+          "type": "variable_substitution",
           "named": true
         }
       ]
@@ -2009,6 +2033,10 @@
     "named": false
   },
   {
+    "type": "-indexvar",
+    "named": false
+  },
+  {
     "type": "-indices",
     "named": false
   },
@@ -2026,6 +2054,10 @@
   },
   {
     "type": "-linestop",
+    "named": false
+  },
+  {
+    "type": "-matchvar",
     "named": false
   },
   {

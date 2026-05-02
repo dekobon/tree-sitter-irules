@@ -35,6 +35,15 @@ module.exports = grammar({
     $._word,
   ],
 
+  // _word_simple vs _concat_word: when switch sees `{` after the value,
+  // the GLR parser must explore both the braced form (escaped_character
+  // inside _concat_word) and the un-braced form (escaped_character
+  // inside _word_simple via braced_word_simple).
+  conflicts: $ => [
+    [$._word_simple, $._concat_word],
+    [$.switch_arm, $._word_simple],
+  ],
+
   extras: $ => [
     /\s+/,
     /\\\r?\n/,
@@ -139,21 +148,24 @@ module.exports = grammar({
       repeat($._concat_word),
     ),
 
-    // switch ?-exact|-glob|-regexp? ?-nocase? ?--? string { pattern body ... }
-    // Only the braced form is modeled structurally; the unbraced form is rare
-    // in iRules practice and not found in the corpus.
+    // switch ?options? string { pattern body ... }   — braced form
+    // switch ?options? string pattern body ...        — un-braced form
     //
-    // Comments and explicit `;` separators are accepted between arms; without
-    // this the lexer would eat `# foo` as `pattern: "#" body: "foo"`, which is
-    // a real iRules-authored shape (TCL semantics aside, editor tooling needs
-    // to recognise the comment).
+    // Comments and explicit `;` separators are accepted between arms in the
+    // braced form; without this the lexer eats `# foo` as
+    // `pattern: "#" body: "foo"`.
     switch: $ => seq(
       'switch',
-      repeat(choice('-exact', '-glob', '-regexp', '-nocase', '--')),
+      repeat(choice(
+        '-exact', '-glob', '-regexp', '-nocase', '--',
+        seq('-matchvar', $._concat_word),
+        seq('-indexvar', $._concat_word),
+      )),
       field('value', $._concat_word),
-      '{',
-      repeat(choice($.switch_arm, $.comment, ';')),
-      '}',
+      choice(
+        seq('{', repeat(choice($.switch_arm, $.comment, ';')), '}'),
+        repeat1($.switch_arm),
+      ),
     ),
 
     switch_arm: $ => seq(

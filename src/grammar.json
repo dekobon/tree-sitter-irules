@@ -430,6 +430,32 @@
               {
                 "type": "STRING",
                 "value": "--"
+              },
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "-matchvar"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_concat_word"
+                  }
+                ]
+              },
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "-indexvar"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_concat_word"
+                  }
+                ]
               }
             ]
           }
@@ -443,32 +469,49 @@
           }
         },
         {
-          "type": "STRING",
-          "value": "{"
-        },
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "CHOICE",
-            "members": [
-              {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "{"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "CHOICE",
+                    "members": [
+                      {
+                        "type": "SYMBOL",
+                        "name": "switch_arm"
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "comment"
+                      },
+                      {
+                        "type": "STRING",
+                        "value": ";"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "STRING",
+                  "value": "}"
+                }
+              ]
+            },
+            {
+              "type": "REPEAT1",
+              "content": {
                 "type": "SYMBOL",
                 "name": "switch_arm"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "comment"
-              },
-              {
-                "type": "STRING",
-                "value": ";"
               }
-            ]
-          }
-        },
-        {
-          "type": "STRING",
-          "value": "}"
+            }
+          ]
         }
       ]
     },
@@ -2261,7 +2304,16 @@
       "value": "\\\\\\r?\\n"
     }
   ],
-  "conflicts": [],
+  "conflicts": [
+    [
+      "_word_simple",
+      "_concat_word"
+    ],
+    [
+      "switch_arm",
+      "_word_simple"
+    ]
+  ],
   "precedences": [],
   "externals": [
     {

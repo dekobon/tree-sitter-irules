@@ -184,21 +184,19 @@ switch_arm:
 
 Three intentional design choices:
 
-1. **Only the braced-arms form is modeled.** TCL also permits
-   un-braced trailing `pattern body pattern body …` arguments after
-   `value`. Un-braced `switch` is rare in iRules practice and not
-   present in the corpus; supporting it would require a separate
-   alternation. Comment in `grammar.js:128-130` records this.
-2. **The option set is incomplete.** Only `-exact`, `-glob`, `-regexp`,
-   `-nocase`, and `--` are recognised (`grammar.js:138`). TCL 8.5+ also
-   defines `-matchvar varname` and `-indexvar varname` for
-   `switch -regexp`; neither is modeled, so code that uses them
-   currently parses with `(ERROR …)`. Adding them would require
-   consuming a following identifier rather than just extending the
-   choice list.
-3. **`comment` and `;` are accepted between arms.** Without this, the
-   lexer eats `# foo` as `pattern: "#" body: "foo"`, which is a real
-   iRules-authored shape. Comment in `grammar.js:131-135` records this.
+1. **Both braced and un-braced forms are modeled.** TCL permits
+   `switch ?options? string { pattern body … }` (braced) and
+   `switch ?options? string pattern body …` (un-braced). Both are
+   supported. The GLR parser resolves the ambiguity between `{` as
+   the braced-form delimiter and `{` as a braced_word_simple pattern
+   via declared conflicts.
+2. **The option set includes `-matchvar` and `-indexvar`.** In addition
+   to `-exact`, `-glob`, `-regexp`, `-nocase`, and `--`, the grammar
+   recognises `seq('-matchvar', _concat_word)` and
+   `seq('-indexvar', _concat_word)` for `switch -regexp` (TCL 8.5+).
+3. **`comment` and `;` are accepted between arms** (braced form only).
+   Without this, the lexer eats `# foo` as `pattern: "#" body: "foo"`,
+   which is a real iRules-authored shape.
 
 The `default` arm is recognised by `queries/irules/highlights.scm:62-68`,
 not the grammar — `default` is just a pattern at parse time.
@@ -313,17 +311,6 @@ set static::foo bar
 extension does not fire in that position. Workarounds: `info exists
 static::foo` for reads, or initialise via `namespace eval`. Tracked in
 `README.md` "Known limitations".
-
-### Un-braced `switch`
-
-See G7 above. Stock TCL accepts both forms; this grammar models only
-the braced-arms form.
-
-### `switch -matchvar` / `switch -indexvar`
-
-See G7 above. Both options exist in TCL 8.5+ but are not modeled, so
-`switch -regexp -matchvar v …` and `switch -regexp -indexvar v …`
-currently parse with `(ERROR …)`.
 
 ### `try` is partially modeled
 
