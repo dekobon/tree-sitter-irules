@@ -199,7 +199,6 @@
           "lsort"
           "package"
           "return"
-          "trap"
           "throw"))
 
 [
