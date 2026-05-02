@@ -31,7 +31,7 @@ below.
 
 - `when` is `@keyword`, `event_name` is `@constant`, modifier tokens
   (`priority`, `timing`, `on`, `off`) are `@keyword`.
-- 105 iRules namespace prefixes (`HTTP::`, `IP::`, `LB::`, `SSL::`,
+- 136 iRules namespace prefixes (`HTTP::`, `IP::`, `LB::`, `SSL::`,
   `CLIENTSSL::`, `URI::`, `JSON::`, `X509::`, …) tagged
   `@function.builtin` via a single `(#match? "^...::")` predicate.
   Names are sourced from
@@ -102,6 +102,22 @@ is retained alongside a new project copyright.
 
 ### Added
 
+- **Grammar.** `regexp` rule now accepts all TCL 8.6 switches
+  (`-about`, `-expanded`, `-indices`, `-line`, `-linestop`,
+  `-lineanchor`, `-nocase`, `-all`, `-inline`, `-start index`, `--`)
+  between the keyword and the pattern argument. Forms like
+  `regexp -nocase -all -- {pattern} $string matchVar` now produce a
+  structured `(regexp ...)` node instead of falling through to generic
+  command parsing (#11).
+- **Grammar.** `switch` rule now accepts `-matchvar varName` and
+  `-indexvar varName` options (TCL 8.5+), and supports the un-braced
+  form where pattern/body pairs appear as flat arguments without
+  surrounding braces. GLR conflicts resolve the ambiguity between the
+  braced-form delimiter and a braced pattern (#15).
+- **Grammar.** `try` rule now models `trap pattern variableList script`
+  handlers alongside `on code variableList script`, supports multiple
+  chained handlers, and accepts any TCL result code (`ok`, `error`,
+  `return`, `break`, `continue`, or integer) — not just `error` (#16).
 - **Queries.** Added 31 missing F5-documented iRules namespace prefixes
   (`ADM`, `APM`, `ASN1`, `BWC`, `CONNECTOR`, `DATAGRAM`, `DHCP`,
   `DNSMSG`, `ECA`, `FLOW`, `FLOWTABLE`, `HTML`, `IKE`, `IMAP`, `IPFIX`,
@@ -223,6 +239,21 @@ is retained alongside a new project copyright.
 
 ### Fixed
 
+- Grammar: `set` no longer emits an ERROR node for namespace-qualified
+  variable targets (`set static::foo bar`, `set ns::var 1`,
+  `set ::g::v 1`). The target is now captured as a single `(id)` node
+  covering the full qualified name (#17).
+- Queries: `@variable.builtin` capture now correctly matches `$tmm_id`
+  and `static::` namespace variables inside `variable_substitution` and
+  `set` nodes, where the previous bare `simple_word` pattern never
+  fired in real iRules code (#13).
+- Queries: `expr` keyword had a dual `@function.builtin @function`
+  capture that could cause editors to display it as generic `@function`
+  instead of `@function.builtin`; removed the redundant capture (#14).
+- Docs: aligned `docs/divergences-from-tcl.md`, `CHANGELOG.md`, and
+  `README.md` with current implementation — added `try` partial
+  modeling to known-limitations, documented `regexp` switch-options
+  extension, corrected stale ERROR-pinning count (#18).
 - Queries: TCL builtins block in `highlights.scm` was using a dual
   `@function.builtin @function` capture which silently caused
   tree-sitter highlighters to report `@function` instead of
