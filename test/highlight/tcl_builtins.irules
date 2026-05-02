@@ -24,3 +24,5 @@ trace add var write cb
 # <- function.builtin
 source script.tcl
 # <- function.builtin
+expr {1 + 2}
+# <- function.builtin

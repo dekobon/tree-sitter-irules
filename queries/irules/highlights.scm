@@ -73,7 +73,7 @@
                 "tmm_id"))
 
 
-"expr" @function.builtin @function
+"expr" @function.builtin
 
 ; switch keyword and default arm pattern (bare or {braced})
 "switch" @keyword
