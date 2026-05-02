@@ -175,3 +175,17 @@ try {
 # ^ keyword
     close $f
 }
+
+# The result code following `on` in a try-handler is a literal word, not
+# a grammar keyword token, so it is captured by a dedicated query.
+try {
+    risky
+} on error {e o} {
+#  ^ keyword
+#     ^ keyword
+    puts $e
+} on ok {r o} {
+#  ^ keyword
+#     ^ keyword
+    puts $r
+}

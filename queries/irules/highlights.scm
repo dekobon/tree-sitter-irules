@@ -213,6 +213,14 @@
  "finally"
  ] @keyword
 
+; The result code in `try { ... } on <code> {vars} {body}` parses as the
+; first simple_word child of on_handler. Highlight the literal codes as
+; keywords so `on error`, `on ok`, etc. read like keywords; integer
+; codes and $var substitutions intentionally fall through.
+(on_handler
+  . (simple_word) @keyword
+  (#any-of? @keyword "ok" "error" "return" "break" "continue"))
+
 (unpack) @operator
 
 [
