@@ -216,6 +216,10 @@
 ; first simple_word child of on_handler. Highlight the literal codes as
 ; keywords so `on error`, `on ok`, etc. read like keywords; integer
 ; codes and $var substitutions intentionally fall through.
+;
+; The leading `.` is a tree-sitter query anchor meaning "first named
+; child" — without it, the pattern would also match a simple_word
+; appearing later in the on_handler subtree (e.g. inside arguments).
 (on_handler
   . (simple_word) @keyword
   (#any-of? @keyword "ok" "error" "return" "break" "continue"))
