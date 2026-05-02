@@ -49,7 +49,11 @@
   (id) @variable.builtin
   (#eq? @variable.builtin "tmm_id"))
 
-(set (id) @variable)
+; Generic set target. The static:: capture below claims those targets
+; via #not-match? so the two patterns are non-overlapping — relying on
+; editor pattern-priority order would be fragile.
+(set (id) @variable
+     (#not-match? @variable "^static::"))
 
 ; static:: namespace — variables that persist across event invocations
 (variable_substitution
