@@ -223,6 +223,25 @@ switch -glob -- $x "/api/*" { pool api_pool } default { pool default_pool }
 
 
 ================================================================================
+switch un-braced form with odd arm count produces ERROR (pinning)
+================================================================================
+
+switch $x pat1 { body1 } pat2
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (ERROR
+    (variable_substitution
+      (id))
+    (switch_arm
+      pattern: (simple_word)
+      body: (braced_word
+        (command
+          name: (simple_word))))
+    (simple_word)))
+
+================================================================================
 switch -exact (default) with quoted patterns
 ================================================================================
 
