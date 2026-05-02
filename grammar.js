@@ -35,10 +35,11 @@ module.exports = grammar({
     $._word,
   ],
 
-  // _word_simple vs _concat_word: when switch sees `{` after the value,
-  // the GLR parser must explore both the braced form (escaped_character
-  // inside _concat_word) and the un-braced form (escaped_character
-  // inside _word_simple via braced_word_simple).
+  // After `switch ?options? value`, a `{` is ambiguous: it can open the
+  // braced-arms form (`{ pattern body ... }`) or it can be the first
+  // token of a `braced_word_simple` pattern in the un-braced form
+  // (`switch $x {pat} {body} ...`). Declare the conflicts so the GLR
+  // parser explores both interpretations.
   conflicts: $ => [
     [$._word_simple, $._concat_word],
     [$.switch_arm, $._word_simple],
