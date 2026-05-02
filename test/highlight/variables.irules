@@ -51,3 +51,9 @@ set val $static::foo
 if { $static::counter > 0 } {}
 #    ^ variable
 #     ^ variable.builtin
+
+# Plain (non-static) set target. The generic capture in highlights.scm
+# is gated by a #not-match? predicate that excludes the static prefix,
+# so this assertion pins the negative branch of that predicate.
+set ordinary_var 1
+#   ^ variable
