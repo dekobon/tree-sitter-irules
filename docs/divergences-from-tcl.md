@@ -273,16 +273,45 @@ Without the switches, forms like `regexp -nocase {pat} $s` or
 `regexp -all -inline -- {pat} $s` would fall through to a generic
 `command` node instead of the structured `regexp` node.
 
-### G11. Inherited rules with no behavioural change
+### G11. `try` / `on_handler` / `trap_handler` (M)
 
-**Every rule not enumerated in G1-G10 is byte-for-byte identical to
+`grammar.js` — the `try` rule is extended from upstream to model the full
+TCL 8.6 `try` surface:
+
+```
+try:
+  'try'
+  body:       _word
+  (on_handler | trap_handler)*
+  finally?
+
+on_handler:
+  'on'
+  code:       _concat_word     // ok, error, return, break, continue, or integer
+  variables:  arguments
+  script:     _word
+
+trap_handler:
+  'trap'
+  pattern:    _word_simple      // e.g. {POSIX ENOENT}
+  variables:  arguments
+  script:     _word
+```
+
+Upstream `tree-sitter-tcl` only accepts a single `on error` handler; this
+grammar accepts any number of `on` and `trap` handlers with any result
+code. `finally` is unchanged from upstream.
+
+### G12. Inherited rules with no behavioural change
+
+**Every rule not enumerated in G1-G11 is byte-for-byte identical to
 upstream `tree-sitter-tcl`.** Verified by `diff` of the two `grammar.js`
-files: outside G1-G10 there are zero hunks.
+files: outside G1-G11 there are zero hunks.
 
 Concretely, the following are unchanged: the precedence table
 (`grammar.js:1-18`); `externals`, `inline`, `extras`; `source_file`,
 `_terminator`, `comment`, `_command`; `while`, `expr_cmd`,
-`foreach`, `global`, `namespace`, `try`, `finally`; `command` (apart
+`foreach`, `global`, `namespace`, `finally`; `command` (apart
 from the G9 `dict` alias); `word_list`, `unpack`, `_word`,
 `_word_simple`, `_concat_word`; the `id` / `_id_immediate` / `_ident`
 family; `array_index`, `variable_substitution`, `braced_word`,
@@ -311,15 +340,6 @@ set static::foo bar
 extension does not fire in that position. Workarounds: `info exists
 static::foo` for reads, or initialise via `namespace eval`. Tracked in
 `README.md` "Known limitations".
-
-### `try` is partially modeled
-
-The inherited `try` rule (`grammar.js`) accepts
-`try body ?on error vars handler? ?finally script?` but not the full
-TCL 8.6 surface: `trap pattern vars handler` clauses and multiple
-consecutive handler clauses are not supported. Code that uses `trap` or
-stacks more than one `on`/`trap` clause will parse as a generic command
-rather than a structured `try` node.
 
 ---
 

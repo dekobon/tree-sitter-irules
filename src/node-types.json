@@ -1210,6 +1210,53 @@
     }
   },
   {
+    "type": "on_handler",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "arguments",
+          "named": true
+        },
+        {
+          "type": "array_index",
+          "named": true
+        },
+        {
+          "type": "braced_word",
+          "named": true
+        },
+        {
+          "type": "command_substitution",
+          "named": true
+        },
+        {
+          "type": "escaped_character",
+          "named": true
+        },
+        {
+          "type": "quoted_word",
+          "named": true
+        },
+        {
+          "type": "simple_word",
+          "named": true
+        },
+        {
+          "type": "unpack",
+          "named": true
+        },
+        {
+          "type": "variable_substitution",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "procedure",
     "named": true,
     "fields": {
@@ -1706,7 +1753,7 @@
     }
   },
   {
-    "type": "try",
+    "type": "trap_handler",
     "named": true,
     "fields": {},
     "children": {
@@ -1717,6 +1764,53 @@
           "type": "arguments",
           "named": true
         },
+        {
+          "type": "array_index",
+          "named": true
+        },
+        {
+          "type": "braced_word",
+          "named": true
+        },
+        {
+          "type": "braced_word_simple",
+          "named": true
+        },
+        {
+          "type": "command_substitution",
+          "named": true
+        },
+        {
+          "type": "escaped_character",
+          "named": true
+        },
+        {
+          "type": "quoted_word",
+          "named": true
+        },
+        {
+          "type": "simple_word",
+          "named": true
+        },
+        {
+          "type": "unpack",
+          "named": true
+        },
+        {
+          "type": "variable_substitution",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "try",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
         {
           "type": "array_index",
           "named": true
@@ -1738,11 +1832,19 @@
           "named": true
         },
         {
+          "type": "on_handler",
+          "named": true
+        },
+        {
           "type": "quoted_word",
           "named": true
         },
         {
           "type": "simple_word",
+          "named": true
+        },
+        {
+          "type": "trap_handler",
           "named": true
         },
         {
@@ -2173,10 +2275,6 @@
     "named": false
   },
   {
-    "type": "error",
-    "named": false
-  },
-  {
     "type": "escaped_character",
     "named": true
   },
@@ -2286,6 +2384,10 @@
   },
   {
     "type": "timing",
+    "named": false
+  },
+  {
+    "type": "trap",
     "named": false
   },
   {

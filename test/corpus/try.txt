@@ -1,0 +1,271 @@
+================================================================================
+try with finally alone
+================================================================================
+
+try {
+    set x 1
+} finally {
+    close $fd
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (try
+    (braced_word
+      (set
+        (id)
+        (simple_word)))
+    (finally
+      (braced_word
+        (command
+          (simple_word)
+          (word_list
+            (variable_substitution
+              (id))))))))
+
+================================================================================
+try with on error handler
+================================================================================
+
+try {
+    open $path
+} on error {e o} {
+    puts $e
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (try
+    (braced_word
+      (command
+        (simple_word)
+        (word_list
+          (variable_substitution
+            (id)))))
+    (on_handler
+      (simple_word)
+      (arguments
+        (argument
+          (simple_word))
+        (argument
+          (simple_word)))
+      (braced_word
+        (command
+          (simple_word)
+          (word_list
+            (variable_substitution
+              (id))))))))
+
+================================================================================
+try with on ok handler
+================================================================================
+
+try {
+    expr {1 + 2}
+} on ok {result opts} {
+    puts $result
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (try
+    (braced_word
+      (expr_cmd
+        (expr
+          (binop_expr
+            (number)
+            (number)))))
+    (on_handler
+      (simple_word)
+      (arguments
+        (argument
+          (simple_word))
+        (argument
+          (simple_word)))
+      (braced_word
+        (command
+          (simple_word)
+          (word_list
+            (variable_substitution
+              (id))))))))
+
+================================================================================
+try with trap handler
+================================================================================
+
+try {
+    open /no/such/file
+} trap {POSIX ENOENT} {msg opts} {
+    puts "not found: $msg"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (try
+    (braced_word
+      (command
+        (simple_word)
+        (word_list
+          (simple_word))))
+    (trap_handler
+      (braced_word_simple
+        (simple_word)
+        (simple_word))
+      (arguments
+        (argument
+          (simple_word))
+        (argument
+          (simple_word)))
+      (braced_word
+        (command
+          (simple_word)
+          (word_list
+            (quoted_word
+              (variable_substitution
+                (id)))))))))
+
+================================================================================
+try with multiple handlers and finally
+================================================================================
+
+try {
+    risky_operation
+} on error {e o} {
+    log local0. $e
+} on break {} {
+    puts "break"
+} trap {POSIX ENOENT} {msg opts} {
+    puts $msg
+} finally {
+    cleanup
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (try
+    (braced_word
+      (command
+        (simple_word)))
+    (on_handler
+      (simple_word)
+      (arguments
+        (argument
+          (simple_word))
+        (argument
+          (simple_word)))
+      (braced_word
+        (command
+          (simple_word)
+          (word_list
+            (simple_word)
+            (variable_substitution
+              (id))))))
+    (on_handler
+      (simple_word)
+      (arguments)
+      (braced_word
+        (command
+          (simple_word)
+          (word_list
+            (quoted_word)))))
+    (trap_handler
+      (braced_word_simple
+        (simple_word)
+        (simple_word))
+      (arguments
+        (argument
+          (simple_word))
+        (argument
+          (simple_word)))
+      (braced_word
+        (command
+          (simple_word)
+          (word_list
+            (variable_substitution
+              (id))))))
+    (finally
+      (braced_word
+        (command
+          (simple_word))))))
+
+================================================================================
+try with on continue handler
+================================================================================
+
+try {
+    continue
+} on continue {} {
+    puts "continued"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (try
+    (braced_word
+      (command
+        (simple_word)))
+    (on_handler
+      (simple_word)
+      (arguments)
+      (braced_word
+        (command
+          (simple_word)
+          (word_list
+            (quoted_word)))))))
+
+================================================================================
+try with on return handler
+================================================================================
+
+try {
+    return 42
+} on return {result opts} {
+    puts "returned: $result"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (try
+    (braced_word
+      (command
+        (simple_word)
+        (word_list
+          (simple_word))))
+    (on_handler
+      (simple_word)
+      (arguments
+        (argument
+          (simple_word))
+        (argument
+          (simple_word)))
+      (braced_word
+        (command
+          (simple_word)
+          (word_list
+            (quoted_word
+              (variable_substitution
+                (id)))))))))
+
+================================================================================
+try body only (no handlers, no finally)
+================================================================================
+
+try {
+    set x 1
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (try
+    (braced_word
+      (set
+        (id)
+        (simple_word)))))

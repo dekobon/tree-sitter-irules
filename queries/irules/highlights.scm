@@ -200,11 +200,11 @@
 
 [
  "catch"
- "error"
  "global"
  "namespace"
  "on"
  "set"
+ "trap"
  "try"
  "finally"
  ] @keyword

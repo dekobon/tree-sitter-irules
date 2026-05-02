@@ -194,14 +194,13 @@ module.exports = grammar({
     try: $ => seq(
       'try',
       $._word,
-      optional(seq(
-        'on',
-        'error',
-        $.arguments,
-        $._word,
-      )),
+      repeat(choice($.on_handler, $.trap_handler)),
       optional($.finally),
     ),
+
+    on_handler: $ => seq('on', $._concat_word, $.arguments, $._word),
+
+    trap_handler: $ => seq('trap', $._word_simple, $.arguments, $._word),
 
     finally: $=> seq('finally', $._word),
 

@@ -678,33 +678,20 @@
           "name": "_word"
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "STRING",
-                  "value": "on"
-                },
-                {
-                  "type": "STRING",
-                  "value": "error"
-                },
-                {
-                  "type": "SYMBOL",
-                  "name": "arguments"
-                },
-                {
-                  "type": "SYMBOL",
-                  "name": "_word"
-                }
-              ]
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "on_handler"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "trap_handler"
+              }
+            ]
+          }
         },
         {
           "type": "CHOICE",
@@ -717,6 +704,48 @@
               "type": "BLANK"
             }
           ]
+        }
+      ]
+    },
+    "on_handler": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "on"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_concat_word"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "arguments"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_word"
+        }
+      ]
+    },
+    "trap_handler": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "trap"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_word_simple"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "arguments"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_word"
         }
       ]
     },
