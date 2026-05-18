@@ -205,6 +205,12 @@ is retained alongside a new project copyright.
   skills under `.claude/skills/`) tailored for the tree-sitter grammar
   context. Project conventions formally adopted: Conventional Commits
   1.0.0, Semantic Versioning 2.0.0, Keep a Changelog 1.1.0.
+- **Editor integration.** `ftdetect/irules.lua` ships with the grammar
+  so Neovim auto-detects `*.irule` and `*.irules` as filetype `irules`;
+  the existing `ftplugin/irules.lua` then calls
+  `vim.treesitter.start()`. README gains a "Filetype detection" section
+  covering modeline, per-project autocmd, and content-based opt-in
+  patterns for users whose iRules are stored as plain `.tcl`.
 
 ### Changed
 

@@ -172,6 +172,53 @@ editor's tree-sitter integration docs for how to register the queries.
 The Rust binding additionally re-exports the highlights query as
 `HIGHLIGHTS_QUERY`.
 
+### Filetype detection
+
+The repo ships `ftdetect/irules.lua` and `ftplugin/irules.lua` for
+Neovim. The ftdetect file maps `*.irule` and `*.irules` to filetype
+`irules` unconditionally; the ftplugin then calls
+`vim.treesitter.start()` for that filetype. Highlighting only renders
+once the parser binary and `queries/irules/highlights.scm` are
+registered with `nvim-treesitter` (or equivalent) — without that, the
+`start()` call is a no-op and the buffer falls back to non-treesitter
+highlighting.
+
+iRules are also commonly stored with a plain `.tcl` extension — we
+deliberately do **not** claim `.tcl` globally, since most `.tcl` files
+on disk are ordinary TCL. To opt specific `.tcl` files into the iRules
+parser, pick one of:
+
+- **Modeline** at the top of the file:
+  `# vim: set filetype=irules :`
+- **Per-project autocmd** in `.nvim.lua` (sourced after `:cd` into the
+  project via Neovim's `'exrc'`). Note `vim.fn.getcwd()` is evaluated
+  when the autocmd is *defined*, so this snippet belongs in a
+  per-project config, not a global `init.lua`:
+
+  ```lua
+  vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+    pattern = vim.fn.getcwd() .. "/irules/*.tcl",
+    callback = function() vim.bo.filetype = "irules" end,
+  })
+  ```
+
+- **Content-based detection** for files that always start with a `when`
+  block:
+
+  ```lua
+  vim.filetype.add({
+    pattern = {
+      [".*%.tcl$"] = function(_, bufnr)
+        local first = vim.api.nvim_buf_get_lines(bufnr, 0, 1, false)[1] or ""
+        if first:match("^%s*when%s+[A-Z][A-Z0-9_]*") then return "irules" end
+      end,
+    },
+  })
+  ```
+
+Other editors follow the same pattern: keep `.tcl` mapped to TCL by
+default and override per-directory or via a header comment.
+
 ## Layout
 
 - `grammar.js` — grammar definition (TCL base + iRules `when` event handler).
