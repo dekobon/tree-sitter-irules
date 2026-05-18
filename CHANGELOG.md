@@ -211,8 +211,25 @@ is retained alongside a new project copyright.
   `vim.treesitter.start()`. README gains a "Filetype detection" section
   covering modeline, per-project autocmd, and content-based opt-in
   patterns for users whose iRules are stored as plain `.tcl`.
+- **Node binding.** `bindings/node/index.js` now exposes
+  `HIGHLIGHTS_QUERY` as a lazy property that reads
+  `queries/irules/highlights.scm` on first access (cached thereafter
+  by replacing the getter with the string value, matching the upstream
+  `tree-sitter` CLI template). Brings the Node binding to parity with
+  the Rust binding, which already re-exports the same query.
 
 ### Changed
+
+- **BREAKING.** Node binding `bindings/node/binding.cc` no longer
+  exports the `name` field (`require('tree-sitter-irules').name`
+  returns `undefined`). The matching `name: string` declaration is
+  removed from `bindings/node/index.d.ts`. Upstream
+  `Parser.Language.name` has been deprecated since the NAPI migration
+  and no other binding exposes it; consumers needing the package
+  identifier should read it from `package.json`. The rest of the
+  TypeScript declarations are refreshed to match the current upstream
+  `tree-sitter` CLI template: `language` is documented `@private` and
+  the optional `HIGHLIGHTS_QUERY?: string` field is declared.
 
 - **BREAKING.** Rust binding requires Rust 1.94 or newer (`Cargo.toml`
   `edition = "2024"`, `package.rust-version = "1.94"`). The `extern

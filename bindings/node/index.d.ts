@@ -18,11 +18,38 @@ type NodeInfo =
       children: ChildNode[];
     });
 
-type Language = {
-  name: string;
+/**
+ * The tree-sitter binding for this grammar.
+ *
+ * @see {@linkcode https://tree-sitter.github.io/node-tree-sitter/interfaces/Language.html Parser.Language}
+ *
+ * @example
+ * const Parser = require("tree-sitter");
+ * const Irules = require("tree-sitter-irules");
+ *
+ * const parser = new Parser();
+ * parser.setLanguage(Irules);
+ */
+declare const binding: {
+  /**
+   * The inner language object.
+   * @private
+   */
   language: unknown;
+
+  /**
+   * The content of the `node-types.json` file for this grammar.
+   *
+   * @see {@linkplain https://tree-sitter.github.io/tree-sitter/using-parsers/6-static-node-types Static Node Types}
+   */
   nodeTypeInfo: NodeInfo[];
+
+  /**
+   * The syntax highlighting query for this grammar
+   * (`queries/irules/highlights.scm`). Loaded lazily on first access;
+   * `undefined` if the file is missing.
+   */
+  HIGHLIGHTS_QUERY?: string;
 };
 
-declare const language: Language;
-export = language;
+export = binding;
