@@ -9,6 +9,7 @@ grammar for F5 [iRules](https://clouddocs.f5.com/api/irules/) — the TCL-derive
 scripting language used to program traffic management on F5 BIG-IP devices.
 
 iRules are syntactically TCL with extensions:
+
 - Top-level event handlers: `when EVENT_NAME [priority N] [timing on|off] { ... }`
 - Namespace-qualified built-in commands: `HTTP::host`, `IP::client_addr`,
   `LB::server`, `SSL::cert`, `TCP::respond`, etc.
@@ -126,7 +127,7 @@ scope that fits.
 
 Examples:
 
-```
+```text
 feat(grammar): add when_event rule with priority and timing modifiers
 fix(scanner): handle EOF inside braced word
 fix(queries): tighten namespace command regex anchor
@@ -148,6 +149,7 @@ must be kept in sync. `npx tree-sitter version <X.Y.Z>` (wrapped by
 `make version`) updates them all.
 
 A change is **breaking** (major bump) if it:
+
 - changes the AST shape of an existing rule (renames a node, removes a
   field, changes which children appear),
 - removes or renames a query capture, or

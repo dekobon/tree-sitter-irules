@@ -185,8 +185,8 @@ is retained alongside a new project copyright.
   `binding_test.js` skips gracefully when the optional `tree-sitter`
   peer is absent. `Cargo.toml` declares `tree-sitter = "0.25"` as a
   dev-dependency so the in-crate test and the lib-doc doctest compile.
-- **CI.** `.github/workflows/ci.yml` runs lint + `tree-sitter generate`
-  + `tree-sitter test` + `cargo build` / `cargo test` (via
+- **CI.** `.github/workflows/ci.yml` runs lint, `tree-sitter generate`,
+  `tree-sitter test`, and `cargo build` / `cargo test` (via
   `parser-test-action`'s `test-rust: true`, pinned to Rust 1.94) on
   Ubuntu, macOS, and Windows. The `tree-sitter-cli` version is
   resolved from `package-lock.json` (validated against a SemVer regex
@@ -194,7 +194,45 @@ is retained alongside a new project copyright.
   `setup-action/cli@v2`, so the CI CLI always matches the version that
   generated the committed `src/parser.c`. The `paths` filter is shared
   between `push` and `pull_request` via a YAML anchor and covers every
-  metadata file that affects builds.
+  metadata file that affects builds. Additional jobs: clippy
+  (`-D warnings`), `cargo deny` (advisories / licenses / bans /
+  sources), and repo tooling (`typos`, `taplo format --check`,
+  `markdownlint-cli2`). All third-party actions SHA-pinned with a
+  `# vN` comment so Dependabot can still bump them. A scanner-diff-
+  gated `fuzz` job runs `tree-sitter/fuzz-action` only when
+  `src/scanner.c` changed, with a `HEAD^` guard for shallow clones.
+- **CI.** `.github/workflows/codeql.yml` runs CodeQL on every push and
+  PR (and weekly on a schedule) across `actions`, `c-cpp`,
+  `javascript-typescript`, `python`, `go`, and `rust`. Configuration
+  in `.github/codeql/codeql-config.yml` excludes generated parser
+  outputs so analysis focuses on the hand-written scanner and binding
+  code.
+- **Release pipeline.** `.github/workflows/release.yml` is triggered by
+  pushing a `vX.Y.Z` tag and publishes to all three registries via
+  OIDC Trusted Publishing — crates.io
+  (`rust-lang/crates-io-auth-action`), npm (`npm publish
+  --provenance`, requires npm ≥ 11.5.1), and PyPI
+  (`pypa/gh-action-pypi-publish` with `skip-existing: true`). A
+  `validate` job cross-checks that the tag matches the version in
+  `tree-sitter.json`, `package.json`, `pyproject.toml`, and
+  `Cargo.toml`, that the package names on each registry match
+  expectations, and that `CHANGELOG.md` has a section for the version.
+  `npm-prebuilds` and `pypi-wheels` matrix-build native artifacts for
+  Ubuntu / macOS / Windows. After all three publishes succeed a
+  `github-release` job extracts the matching CHANGELOG section and
+  creates the GitHub Release with `gh release create --verify-tag`.
+  Re-runs on the same tag (`workflow_dispatch --ref vX.Y.Z`) are
+  idempotent — each publish job short-circuits if the version already
+  landed on its registry.
+- **Repo policy.** Added `dependabot.yml` covering all six package
+  ecosystems (github-actions, npm, cargo, gomod, pip, swift) with
+  grouped minor/patch PRs; `tree-sitter-cli` and `eslint` major are
+  pinned via `ignore` so PRs can't land with a stale `parser.c` or a
+  broken eslint config. Added `CONTRIBUTING.md`, bug / feature issue
+  templates, a PR template, and `RELEASE.md` documenting the
+  Trusted-Publishing setup and per-release procedure. Repo tooling
+  configs: `.taplo.toml`, `.typos.toml`, `deny.toml`,
+  `.markdownlint-cli2.jsonc`.
 - **Docs.** README with canonical repo URL, CI / license
   badges, "Recognised iRules surface", "TCL baseline", "Known
   limitations", per-ecosystem install snippets (with guidance for

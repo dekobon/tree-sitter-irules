@@ -1,5 +1,11 @@
 name: CI
 
+# Third-party actions (anything outside `actions/*` and `github/*`)
+# are pinned to a commit SHA with a trailing `# vN` comment.
+# Floating tags or branches would let an upstream owner change
+# behavior silently. Dependabot still bumps these because the
+# version comment is in the format it recognizes.
+
 on:
   push:
     branches: [main]
@@ -22,8 +28,16 @@ on:
       - setup.py
       - Package.swift
       - tree-sitter.json
+      - .taplo.toml
+      - .typos.toml
+      - deny.toml
+      - .markdownlint-cli2.jsonc
+      - "**/*.md"
   pull_request:
     paths: *paths
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -34,8 +48,8 @@ jobs:
     name: Lint source code
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
       - run: npm ci
@@ -49,7 +63,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-14]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Resolve tree-sitter-cli version from package-lock.json
         id: ts-cli
         shell: bash
@@ -64,31 +78,91 @@ jobs:
             exit 1
           fi
           printf 'ref=v%s\n' "$version" >> "$GITHUB_OUTPUT"
-      - uses: tree-sitter/setup-action/cli@v2
+      - uses: tree-sitter/setup-action/cli@eeb902ac2f1be576edc296309872cf476a209b7f # v2
         with:
           tree-sitter-ref: ${{ steps.ts-cli.outputs.ref }}
-      - uses: tree-sitter/parser-test-action@v2
+      - uses: tree-sitter/parser-test-action@aba4a3de737f86f8ce83be38166a1ab521d4c960 # v2
         with:
           generate: true
           test-parser: true
           test-rust: true
           rust-version: "1.94"
           # test-node: true
+      # Catch a committed parser.c / grammar.json / node-types.json
+      # that drifted from grammar.js. The parser-test-action above
+      # regenerates these in-place but never compares them against the
+      # checkout, so a stale committed copy can pass tests while
+      # shipping out-of-date C to downstream consumers. Linux only —
+      # line-ending normalization on Windows produces spurious diffs.
+      - name: Verify generated parser artifacts are up to date
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |-
+          set -eu
+          if ! git diff --exit-code src/parser.c src/grammar.json src/node-types.json; then
+            echo "Committed parser artifacts are stale. Run 'npx tree-sitter generate' and commit the result." >&2
+            exit 1
+          fi
+
+  rust-lint:
+    name: Rust lint (clippy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9
+        with:
+          toolchain: "1.94"
+          components: clippy
+      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
+      - run: cargo clippy --all-targets -- -D warnings
+
+  cargo-deny:
+    name: cargo deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: EmbarkStudios/cargo-deny-action@6c8f9facfa5047ec02d8485b6bf52b587b7777d1 # v2
+        with:
+          command: check
+          arguments: --all-features
+
+  tooling:
+    name: Repo tooling checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: typos
+        uses: crate-ci/typos@aca895bf05aec0cb7dffa6f94495e923224d9f17 # v1.46.2
+      - name: taplo (TOML format check)
+        uses: uncenter/setup-taplo@09968a8ae38d66ddd3d23802c44bf6122d7aa991 # v1
+        with:
+          # Pinned: the action downloads taplo-full-* assets which
+          # only exist up through 0.9.3. `latest` (and 0.10.0) ship
+          # only taplo-* assets and the action fails with
+          # "gzip: stdin: not in gzip format".
+          version: "0.9.3"
+      - run: taplo format --check
+      - name: markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@ded1f9488f68a970bc66ea5619e13e9b52e601cd # v23
+        with:
+          globs: "**/*.md"
 
   fuzz:
     name: Fuzz parser
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
       - name: Check for scanner changes
         id: scanner-changes
         run: |-
-          if git diff --quiet HEAD^ -- src/scanner.c; then
+          if ! git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            printf 'changed=false\n' >> "$GITHUB_OUTPUT"
+          elif git diff --quiet HEAD^ -- src/scanner.c; then
             printf 'changed=false\n' >> "$GITHUB_OUTPUT"
           else
             printf 'changed=true\n' >> "$GITHUB_OUTPUT"
           fi
-      - uses: tree-sitter/fuzz-action@v4
+      - uses: tree-sitter/fuzz-action@6a1dcff00aefd038ba418bd63732a9add4901266 # v4
         if: steps.scanner-changes.outputs.changed == 'true'
