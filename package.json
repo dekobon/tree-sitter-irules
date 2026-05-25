@@ -54,7 +54,7 @@
     "node": ">=20"
   },
   "dependencies": {
-    "node-addon-api": "^8.7.0",
+    "node-addon-api": "^8.8.0",
     "node-gyp-build": "^4.8.4"
   },
   "peerDependencies": {
@@ -69,7 +69,7 @@
     "eslint": "^9.39.4",
     "eslint-config-treesitter": "^1.0.2",
     "prebuildify": "^6.0.1",
-    "tree-sitter-cli": "^0.25.10"
+    "tree-sitter-cli": "^0.26.9"
   },
   "tree-sitter": [
     {
