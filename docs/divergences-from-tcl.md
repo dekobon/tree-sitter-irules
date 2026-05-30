@@ -236,7 +236,9 @@ forms were previously `(ERROR …)`. Because a braced key
 (`braced_word_simple`) and the trailing braced `body` (`braced_word`) are
 both `{…}`, a `[braced_word, braced_word_simple]` entry is declared in
 `conflicts` so the GLR parser keeps the interpretation where the required
-`body` is present.
+`body` is present. As with `foreach`, `_word_simple` does not include
+`_concat_word`'s bare `name(idx)` (array-index) operand — a degenerate
+spelling for a dict value or key.
 
 The grammar accepts an arbitrary count of items between `variable` and
 `body`. TCL's actual semantics for `dict_update` are *alternating key /
@@ -442,7 +444,6 @@ list is the source of truth and changes over BIG-IP versions).
   ordinary commands).
 - **Enforce TCL-version-gated syntax** (8.4 vs 8.5 vs 8.6 features all
   parse uniformly under the inherited `tree-sitter-tcl` baseline).
-- **Model the un-braced form of `switch`** (see G7).
 - **Model all `dict` subcommands** (only the three with script-body
   semantics; see G8).
 
