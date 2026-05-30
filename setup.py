@@ -7,6 +7,10 @@ from wheel.bdist_wheel import bdist_wheel
 
 
 class Build(build):
+    # Queries live at the repo root (`queries/irules/*.scm`), outside
+    # the Python package source tree, so `package_data` cannot reach
+    # them. Copy them into `build_lib` here; the wheel-builder then
+    # includes them under `tree_sitter_irules/queries/irules/`.
     def run(self):
         if isdir("queries"):
             dest = join(self.build_lib, "tree_sitter_irules", "queries")
@@ -27,7 +31,6 @@ setup(
     package_dir={"": "bindings/python"},
     package_data={
         "tree_sitter_irules": ["*.pyi", "py.typed"],
-        "tree_sitter_irules.queries": ["*.scm"],
     },
     ext_package="tree_sitter_irules",
     ext_modules=[
