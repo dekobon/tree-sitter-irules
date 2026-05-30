@@ -270,7 +270,7 @@
 
 ((simple_word) @number
                (#match? @number
-                   "^[0-9]+$|^[+-]?[0-9]+$"))
+                   "^[+-]?[0-9]+$"))
 
 
 ((simple_word) @boolean
