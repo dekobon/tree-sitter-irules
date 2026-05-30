@@ -328,7 +328,7 @@ is retained alongside a new project copyright.
   `dict with d {a} {…}`, `dict update d {my key} v {…}`. The value /
   key-path fields previously used `_concat_word`, which lacks
   `braced_word_simple`, so the braced forms produced `(ERROR …)` /
-  `(MISSING …)` nodes and mis-assigned the body. They now use
+  `(MISSING …)` nodes and misassigned the body. They now use
   `_word_simple` (matching `foreach`), with a
   `[braced_word, braced_word_simple]` conflict to disambiguate a braced
   key from the trailing braced body. Variable- and command-substitution
