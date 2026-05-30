@@ -13,3 +13,135 @@ set foo($i) 1
       (variable_substitution
         (id)))
     (simple_word)))
+
+================================================================================
+Read array element in value position
+================================================================================
+
+set x $arr(i)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (set
+    (id)
+    (variable_substitution
+      (id)
+      (array_index
+        (simple_word)))))
+
+================================================================================
+Read array element with variable index in command argument
+================================================================================
+
+puts $arr($i)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (command
+    name: (simple_word)
+    arguments: (word_list
+      (variable_substitution
+        (id)
+        (array_index
+          (variable_substitution
+            (id)))))))
+
+================================================================================
+Read namespace-qualified array element
+================================================================================
+
+set y $static::cache($key)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (set
+    (id)
+    (variable_substitution
+      (id)
+      (array_index
+        (variable_substitution
+          (id))))))
+
+================================================================================
+Read array element in expr condition
+================================================================================
+
+if { $arr(i) > 5 } { return }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (if
+    condition: (expr
+      (binop_expr
+        (variable_substitution
+          (id)
+          (array_index
+            (simple_word)))
+        (number)))
+    consequence: (braced_word
+      (command
+        name: (simple_word)))))
+
+================================================================================
+Read array element as foreach operand
+================================================================================
+
+foreach k $arr($i) { puts $k }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (foreach
+    (arguments
+      (simple_word))
+    (variable_substitution
+      (id)
+      (array_index
+        (variable_substitution
+          (id))))
+    (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (variable_substitution
+            (id)))))))
+
+================================================================================
+Read array element as dict operand
+================================================================================
+
+dict get $arr($i) name
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (command
+    name: (simple_word)
+    arguments: (word_list
+      (simple_word)
+      (variable_substitution
+        (id)
+        (array_index
+          (variable_substitution
+            (id))))
+      (simple_word))))
+
+================================================================================
+Bareword array index in command argument
+================================================================================
+
+puts a(b)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (command
+    name: (simple_word)
+    arguments: (word_list
+      (simple_word)
+      (array_index
+        (simple_word)))))

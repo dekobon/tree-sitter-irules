@@ -19,8 +19,13 @@ bool tree_sitter_irules_external_scanner_scan(void *payload, TSLexer *lexer,
     return false;
   }
 
+  // `(` is excluded so a `(` immediately after a variable name (`$arr(i)`)
+  // is lexed as the `token.immediate('(')` that opens `array_index`, not as a
+  // concat boundary. No word piece begins with `(`, so a CONCAT here could
+  // only ever lead to an error otherwise.
   if (valid_symbols[CONCAT] && (
         !iswspace(c) &&
+        c != '(' &&
         c != ')' &&
         c != ':' &&
         c != '}' &&

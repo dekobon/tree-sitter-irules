@@ -309,6 +309,18 @@ is retained alongside a new project copyright.
 
 ### Fixed
 
+- Scanner: array-element **reads** via `$arr(idx)` now parse correctly in
+  every read position — value (`set x $arr(i)`), command argument
+  (`puts $arr($i)`), namespace-qualified (`$static::cache($key)`), `expr`/`if`
+  conditions, `foreach`, and `dict` operands. Previously the external
+  `_concat` token fired on the `(` immediately following a variable name,
+  winning over `array_index`'s `token.immediate('(')` and wrapping the read
+  in an `(ERROR)` node. `(` is now excluded from `_concat` (like its partner
+  `)`), so the index attaches to the `variable_substitution`. The same fix
+  unblocks bareword `name(idx)` array indices in command arguments
+  (`puts a(b)`), which now parse as `(simple_word) (array_index …)` via
+  `_concat_word` instead of erroring. The write form (`set arr(i) 5`) was
+  already correct. Inherited from upstream `tree-sitter-tcl` (#30).
 - Grammar: `dict for`, `dict update`, and `dict with` now accept inline
   brace-quoted dict literals and keys — `dict for {k v} {a 1 b 2} {…}`,
   `dict with d {a} {…}`, `dict update d {my key} v {…}`. The value /

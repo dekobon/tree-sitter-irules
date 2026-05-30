@@ -61,6 +61,14 @@ the bindings under `bindings/{c,go,node,python,rust,swift}/` link
 against. The hand-written external scanner in `src/scanner.c` exposes
 matching `tree_sitter_irules_external_scanner_*` symbols.
 
+`scanner.c` carries one behavioral divergence from upstream (type **U**):
+`(` is excluded from the `CONCAT` token alongside `)`, `:`, `}`, `]`. This
+lets a `(` immediately following a variable name attach as
+`array_index`'s `token.immediate('(')` so array-element **reads**
+(`$arr(idx)`, `$ns::arr($i)`) parse instead of erroring. Upstream lets
+`CONCAT` fire on `(`, which wins over the immediate token and wraps the
+read in `(ERROR)` (#30).
+
 ### G2. `_builtin` dispatch arms (mixed)
 
 `grammar.js:53-71` — the inlined `_builtin` rule, which `_command`
