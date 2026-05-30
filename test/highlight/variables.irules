@@ -57,3 +57,10 @@ if { $static::counter > 0 } {}
 # so this assertion pins the negative branch of that predicate.
 set ordinary_var 1
 #   ^ variable
+
+# Braced set targets must produce an (id) child so the same target
+# captures fire as the bare spelling (regression for #19).
+set ${plain_var} 1
+#     ^ variable
+set ${static::foo} 1
+#     ^ variable.builtin

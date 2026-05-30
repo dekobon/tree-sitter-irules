@@ -301,6 +301,11 @@ is retained alongside a new project copyright.
 
 ### Fixed
 
+- Grammar: `set` targets written in the `${name}` braced form now produce
+  an `(id)` child instead of consuming the identifier as anonymous tokens.
+  Highlight queries keyed on `(set (id) …)` — including the `static::`
+  built-in split — now fire on both `set ${plain_var} 1` and
+  `set ${static::foo} 1`, matching the bare spelling (#19).
 - Grammar: `set` no longer emits an ERROR node for namespace-qualified
   variable targets (`set static::foo bar`, `set ns::var 1`,
   `set ::g::v 1`). The target is now captured as a single `(id)` node

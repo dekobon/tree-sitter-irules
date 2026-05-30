@@ -291,7 +291,7 @@ module.exports = grammar({
       'set',
       choice(
         seq(alias($.simple_word, $.id), optional($.array_index)),
-        seq('$', '{', /[^}]+/, '}'),
+        seq('$', '{', alias(/[^}]+/, $.id), '}'),
       ),
       optional($._word_simple),
     ),
