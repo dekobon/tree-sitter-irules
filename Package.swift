@@ -7,7 +7,9 @@ let package = Package(
     products: [
         .library(name: "TreeSitterIrules", targets: ["TreeSitterIrules"]),
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.8.0"),
+    ],
     targets: [
         .target(name: "TreeSitterIrules",
                 path: ".",
@@ -15,11 +17,12 @@ let package = Package(
                     "Cargo.toml",
                     "Makefile",
                     "binding.gyp",
-                    "bindings/c",
+                    "bindings/c/tree-sitter-irules.pc.in",
                     "bindings/go",
                     "bindings/node",
                     "bindings/python",
                     "bindings/rust",
+                    "bindings/swift/TreeSitterIrulesTests",
                     "prebuilds",
                     "grammar.js",
                     "package.json",
@@ -41,8 +44,18 @@ let package = Package(
                 resources: [
                     .copy("queries")
                 ],
-                publicHeadersPath: "bindings/swift",
-                cSettings: [.headerSearchPath("src")])
+                // Single source of truth for the public header is
+                // bindings/c/tree-sitter-irules.h. The Swift target
+                // re-exports it via this publicHeadersPath instead
+                // of carrying its own copy.
+                publicHeadersPath: "bindings/c",
+                cSettings: [.headerSearchPath("src")]),
+        .testTarget(name: "TreeSitterIrulesTests",
+                    dependencies: [
+                        "SwiftTreeSitter",
+                        "TreeSitterIrules",
+                    ],
+                    path: "bindings/swift/TreeSitterIrulesTests"),
     ],
     cLanguageStandard: .c11
 )
