@@ -228,10 +228,11 @@ is retained alongside a new project copyright.
   ecosystems (github-actions, npm, cargo, gomod, pip, swift) with
   grouped minor/patch PRs; `tree-sitter-cli` and `eslint` major are
   pinned via `ignore` so PRs can't land with a stale `parser.c` or a
-  broken eslint config. Added `CONTRIBUTING.md`, bug / feature issue
-  templates, a PR template, and `RELEASE.md` documenting the
-  Trusted-Publishing setup and per-release procedure. Repo tooling
-  configs: `.taplo.toml`, `.typos.toml`, `deny.toml`,
+  broken eslint config. Added `CONTRIBUTING.md`, `SECURITY.md`,
+  `CODE_OF_CONDUCT.md`, bug / feature issue templates, a PR template,
+  and `docs/cutting-a-release.md` documenting the Trusted-Publishing
+  setup and per-release procedure. Repo tooling configs:
+  `.taplo.toml`, `.typos.toml`, `deny.toml`,
   `.markdownlint-cli2.jsonc`.
 - **Docs.** README with canonical repo URL, CI / license
   badges, "Recognised iRules surface", "TCL baseline", "Known
