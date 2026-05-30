@@ -64,3 +64,12 @@ set ${plain_var} 1
 #     ^ variable
 set ${static::foo} 1
 #     ^ variable.builtin
+
+# Braced variable_substitution must also produce an (id) child so the
+# built-in splits ($tmm_id, static::) fire on the ${...} spelling too.
+${tmm_id}
+# <- variable
+#  ^ variable.builtin
+${static::foo}
+# <- variable
+#  ^ variable.builtin

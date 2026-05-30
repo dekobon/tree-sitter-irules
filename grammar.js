@@ -275,10 +275,15 @@ module.exports = grammar({
     variable_substitution: $ => seq(
       choice(
         seq('$', alias($._id_immediate, $.id)),
-        seq('$', '{', /[^}]+/, '}'),
+        $._braced_id,
       ),
       optional($.array_index),
     ),
+
+    // `${name}` variable reference. Hidden so the aliased (id) promotes
+    // into the parent (set / variable_substitution), keeping both braced
+    // and bare spellings on the same (id) shape.
+    _braced_id: $ => seq('$', '{', alias(/[^}]+/, $.id), '}'),
 
     braced_word: $ => seq('{', optional(seq(
       interleaved1($._command, repeat1($._terminator)),
@@ -291,7 +296,7 @@ module.exports = grammar({
       'set',
       choice(
         seq(alias($.simple_word, $.id), optional($.array_index)),
-        seq('$', '{', alias(/[^}]+/, $.id), '}'),
+        $._braced_id,
       ),
       optional($._word_simple),
     ),
