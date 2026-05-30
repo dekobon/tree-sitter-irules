@@ -262,8 +262,22 @@ jobs:
           pattern: prebuilds-*
           merge-multiple: true
       - run: ls -R prebuilds/
+      # Short-circuit if the version is already on npm, keeping the
+      # first-release bootstrap and `workflow_dispatch` re-runs on the
+      # same tag idempotent — `npm publish` itself rejects a duplicate
+      # version outright, which would fail the job and skip
+      # `github-release`. Mirrors the crates-publish sparse-index check
+      # and the pypi-publish `skip-existing: true`.
       - name: npm publish
-        run: npm publish --provenance --access public
+        env:
+          VERSION: ${{ needs.validate.outputs.version }}
+        run: |-
+          set -eu
+          if npm view "tree-sitter-irules@${VERSION}" version >/dev/null 2>&1; then
+            echo "tree-sitter-irules ${VERSION} already on npm — skipping"
+          else
+            npm publish --provenance --access public
+          fi
 
   pypi-wheels:
     name: Build wheels (${{ matrix.os }})
