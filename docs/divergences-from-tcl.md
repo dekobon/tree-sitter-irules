@@ -211,27 +211,38 @@ structurally. This grammar adds dedicated rules:
 dict_for:
   'dict' 'for'
   variables: arguments        // {keyVar valueVar}
-  value:     _concat_word
+  value:     _word_simple
   body:      braced_word
 
 dict_update:
   'dict' 'update'
   variable:  _concat_word
-  _concat_word*
+  _word_simple*
   body:      braced_word
 
 dict_with:
   'dict' 'with'
   variable:  _concat_word
-  _concat_word*
+  _word_simple*
   body:      braced_word
 ```
 
-The grammar accepts an arbitrary count of `_concat_word` items between
-`variable` and `body`. TCL's actual semantics for `dict_update` are
-*alternating key / varName pairs* (so an even count) and for `dict_with`
-are an *optional key path* (any count, including zero). Neither
-constraint is enforced — pair-structure validation belongs in a linter.
+The `value` (in `dict_for`) and the key / varName items (in `dict_update`
+/ `dict_with`) use `_word_simple` rather than `_concat_word` so an inline
+brace-quoted dict literal or key parses — `dict for {k v} {a 1 b 2} {…}`,
+`dict update d {my key} v {…}` — matching how `foreach` models its braced
+list operand. `_concat_word` lacks `braced_word_simple`, so those braced
+forms were previously `(ERROR …)`. Because a braced key
+(`braced_word_simple`) and the trailing braced `body` (`braced_word`) are
+both `{…}`, a `[braced_word, braced_word_simple]` entry is declared in
+`conflicts` so the GLR parser keeps the interpretation where the required
+`body` is present.
+
+The grammar accepts an arbitrary count of items between `variable` and
+`body`. TCL's actual semantics for `dict_update` are *alternating key /
+varName pairs* (so an even count) and for `dict_with` are an *optional key
+path* (any count, including zero). Neither constraint is enforced —
+pair-structure validation belongs in a linter.
 
 Other `dict` subcommands (`dict get`, `dict set`, `dict exists`,
 `dict keys`, `dict create`, …) parse as ordinary commands.
@@ -302,11 +313,21 @@ Upstream `tree-sitter-tcl` only accepts a single `on error` handler; this
 grammar accepts any number of `on` and `trap` handlers with any result
 code. `finally` is unchanged from upstream.
 
-### G12. Inherited rules with no behavioural change
+### G12. `ternary_expr` right-associativity (M)
 
-**Every rule not enumerated in G1-G11 is byte-for-byte identical to
+`grammar.js` `ternary_expr` — upstream `tree-sitter-tcl` declares the
+`?:` operator `prec.left`, which builds a left-nested tree for chained
+ternaries. TCL (like C) makes `?:` **right**-associative, so this grammar
+uses `prec.right`: `a ? b : c ? d : e` parses as `a ? b : (c ? d : e)`,
+not `(a ? b : c) ? d : e`. Same syntax accepted as upstream; only the AST
+shape of chained ternaries changes. This is the sole associativity
+divergence from upstream.
+
+### G13. Inherited rules with no behavioural change
+
+**Every rule not enumerated in G1-G12 is byte-for-byte identical to
 upstream `tree-sitter-tcl`.** Verified by `diff` of the two `grammar.js`
-files: outside G1-G11 there are zero hunks.
+files: outside G1-G12 there are zero hunks.
 
 Concretely, the following are unchanged: the precedence table
 (`grammar.js:1-18`); `externals`, `inline`, `extras`; `source_file`,
@@ -318,7 +339,7 @@ family; `array_index`, `variable_substitution`, `braced_word`,
 `braced_word_simple`, `set`, `procedure`, `_argument_word`, `argument`,
 `arguments`; `number`, `_boolean`; `_expr_atom_no_brace`, `_expr`,
 `expr`; `binop_expr` (apart from the G4 string operators and the G5
-`and` / `or` additions); `ternary_expr`; `unary_expr` (apart from the
+`and` / `or` additions); `unary_expr` (apart from the
 G5 `not` addition); `if` / `else` / `elseif`, `_conditional`, `catch`;
 `quoted_word`, `escaped_character`, `_quoted_word_content`,
 `command_substitution`, `simple_word`.
@@ -329,17 +350,22 @@ G5 `not` addition); `if` / `else` / `elseif`, `_conditional`, `catch`;
 
 These are gaps a reviewer should be aware of:
 
-### `set` with namespace-qualified target
+### Bare-word operands in `expr` contexts
 
 ```tcl
-set static::foo bar
+if {$x eq foo}
 ```
 
-…parses with an `(ERROR …)` node around `::foo`. The `set` rule
-(`grammar.js:264-271`) binds to a single `id` and the immediate-`::`
-extension does not fire in that position. Workarounds: `info exists
-static::foo` for reads, or initialise via `namespace eval`. Tracked in
-`README.md` "Known limitations".
+…parses with an `(ERROR …)` node around the bare `foo`. This matches
+stock TCL, whose `expr` rejects unquoted barewords (`invalid bareword
+"foo"`): operands must be `$var`, a number, a boolean, `[cmd]`,
+`"string"`, or `{braced}`. Inherited from upstream `tree-sitter-tcl`,
+**not** an iRules divergence — listed only because the iRules string
+operators (`eq`, `starts_with`, …) make it a common point of confusion.
+
+The previously-documented `set static::foo bar` ERROR has been **resolved**:
+namespace-qualified `set` targets now parse as a single `(id)` (see the
+corpus tests in `test/corpus/irules_events.txt`).
 
 ---
 

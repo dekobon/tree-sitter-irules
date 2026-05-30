@@ -82,20 +82,11 @@ parse as ordinary TCL commands. Linting/validation is out of scope here.
 
 ## Known limitations
 
-- **`set` with namespace-qualified target** (`set static::foo bar`) parses
-  with an `(ERROR ...)` around the `::foo` segment because the `set` rule
-  binds to a single `id` and the immediate-`::` extension does not fire
-  in that position. Workaround: read via `info exists static::foo`, or
-  initialise the variable through `namespace eval` for now.
-- **`switch` is partially modeled.** Only the braced-arms form is
-  supported. TCL's un-braced trailing `pattern body pattern body …`
-  syntax is not modeled. TCL 8.5+ `-matchvar varName` and
-  `-indexvar varName` options for `switch -regexp` are not recognised
-  and produce `(ERROR ...)` nodes.
-- **`try` is partially modeled.** The grammar accepts
-  `try body ?on error vars handler? ?finally script?` but not the
-  full TCL 8.6 surface: `trap pattern vars handler` clauses and
-  multiple handler clauses are not supported.
+- **Bare-word operands in `expr` contexts must be quoted or braced**, as
+  in stock TCL. `if {$x eq foo}` produces an `(ERROR ...)` node because
+  TCL's own `expr` rejects unquoted barewords (`invalid bareword "foo"`);
+  write `if {$x eq "foo"}` or `if {$x eq {foo}}`. `$var`, numbers,
+  booleans, `[cmd]`, and `"strings"` are all accepted operands.
 - **Plain `matches` operator** (no `_glob`/`_regex` suffix) is accepted by
   the grammar but is **not** documented on F5's Operators page. It is
   retained for upstream `tree-sitter-tcl` compatibility; prefer

@@ -226,9 +226,11 @@ is retained alongside a new project copyright.
   landed on its registry.
 - **Repo policy.** Added `dependabot.yml` covering all six package
   ecosystems (github-actions, npm, cargo, gomod, pip, swift) with
-  grouped minor/patch PRs; `tree-sitter-cli` and `eslint` major are
-  pinned via `ignore` so PRs can't land with a stale `parser.c` or a
-  broken eslint config. Added `CONTRIBUTING.md`, `SECURITY.md`,
+  grouped minor/patch PRs; `eslint` major is held via `ignore` (the
+  pinned config supports only eslint 9). A `tree-sitter-cli` bump is
+  allowed to land: `regenerate.yml` regenerates `parser.c` on the
+  Dependabot PR and the CI "verify generated parser artifacts are up to
+  date" step blocks any drift. Added `CONTRIBUTING.md`, `SECURITY.md`,
   `CODE_OF_CONDUCT.md`, bug / feature issue templates, a PR template,
   and `docs/cutting-a-release.md` documenting the Trusted-Publishing
   setup and per-release procedure. Repo tooling configs:
@@ -259,6 +261,12 @@ is retained alongside a new project copyright.
 
 ### Changed
 
+- **BREAKING.** `ternary_expr` is now right-associative (`prec.right`),
+  matching TCL/C: `expr {$a ? $b : $c ? $d : $e}` nests as
+  `$a ? $b : ($c ? $d : $e)`, where upstream `tree-sitter-tcl`
+  (`prec.left`) produced the left-nested tree. Only the AST shape of
+  chained ternaries changes; single ternaries are unaffected. See
+  `docs/divergences-from-tcl.md` G12.
 - **BREAKING.** Node binding `bindings/node/binding.cc` no longer
   exports the `name` field (`require('tree-sitter-irules').name`
   returns `undefined`). The matching `name: string` declaration is
@@ -301,6 +309,16 @@ is retained alongside a new project copyright.
 
 ### Fixed
 
+- Grammar: `dict for`, `dict update`, and `dict with` now accept inline
+  brace-quoted dict literals and keys — `dict for {k v} {a 1 b 2} {…}`,
+  `dict with d {a} {…}`, `dict update d {my key} v {…}`. The value /
+  key-path fields previously used `_concat_word`, which lacks
+  `braced_word_simple`, so the braced forms produced `(ERROR …)` /
+  `(MISSING …)` nodes and mis-assigned the body. They now use
+  `_word_simple` (matching `foreach`), with a
+  `[braced_word, braced_word_simple]` conflict to disambiguate a braced
+  key from the trailing braced body. Variable- and command-substitution
+  values are unaffected.
 - Grammar: the `${name}` braced form now produces an `(id)` child in both
   `set` targets and `variable_substitution`, instead of consuming the
   identifier as anonymous tokens. The two rules now share a single
