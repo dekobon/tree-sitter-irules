@@ -229,7 +229,7 @@
           "name": "value",
           "content": {
             "type": "SYMBOL",
-            "name": "_concat_word"
+            "name": "_word_simple"
           }
         },
         {
@@ -265,7 +265,7 @@
           "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "_concat_word"
+            "name": "_word_simple"
           }
         },
         {
@@ -301,7 +301,7 @@
           "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "_concat_word"
+            "name": "_word_simple"
           }
         },
         {
@@ -2077,7 +2077,7 @@
       ]
     },
     "ternary_expr": {
-      "type": "PREC_LEFT",
+      "type": "PREC_RIGHT",
       "value": 10,
       "content": {
         "type": "SEQ",
@@ -2333,6 +2333,10 @@
     [
       "switch_arm",
       "_word_simple"
+    ],
+    [
+      "braced_word",
+      "braced_word_simple"
     ]
   ],
   "precedences": [],

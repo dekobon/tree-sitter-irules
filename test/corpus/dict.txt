@@ -169,3 +169,70 @@ dict set d key "value"
       (simple_word)
       (simple_word)
       (quoted_word))))
+
+================================================================================
+dict for over an inline brace-quoted dict literal
+================================================================================
+
+dict for {k v} {a 1 b 2} { puts $k }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dict_for
+    variables: (arguments
+      (argument
+        name: (simple_word))
+      (argument
+        name: (simple_word)))
+    value: (braced_word_simple
+      (simple_word)
+      (simple_word)
+      (simple_word)
+      (simple_word))
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (variable_substitution
+            (id)))))))
+
+================================================================================
+dict with brace-quoted key path
+================================================================================
+
+dict with d {a} { set y 1 }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dict_with
+    variable: (simple_word)
+    (braced_word_simple
+      (simple_word))
+    body: (braced_word
+      (set
+        (id)
+        (simple_word)))))
+
+================================================================================
+dict update with brace-quoted key
+================================================================================
+
+dict update d {my key} v { puts $v }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dict_update
+    variable: (simple_word)
+    (braced_word_simple
+      (simple_word)
+      (simple_word))
+    (simple_word)
+    body: (braced_word
+      (command
+        name: (simple_word)
+        arguments: (word_list
+          (variable_substitution
+            (id)))))))

@@ -316,3 +316,27 @@ expr {[HTTP::uri] starts_with "/api/" and not ([HTTP::host] equals "bad.com") or
               arguments: (word_list
                 (simple_word))))
           (quoted_word))))))
+
+================================================================================
+chained ternary is right-associative
+================================================================================
+
+expr {$a ? $b : $c ? $d : $e}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expr_cmd
+    (expr
+      (ternary_expr
+        (variable_substitution
+          (id))
+        (variable_substitution
+          (id))
+        (ternary_expr
+          (variable_substitution
+            (id))
+          (variable_substitution
+            (id))
+          (variable_substitution
+            (id)))))))

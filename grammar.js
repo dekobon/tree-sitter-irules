@@ -43,6 +43,10 @@ module.exports = grammar({
   conflicts: $ => [
     [$._word_simple, $._concat_word],
     [$.switch_arm, $._word_simple],
+    // In `dict update`/`dict with`, a braced key (braced_word_simple) and the
+    // trailing braced body (braced_word) are both `{...}`; GLR explores both
+    // and keeps the parse where the required body is present.
+    [$.braced_word, $.braced_word_simple],
   ],
 
   extras: $ => [
@@ -101,11 +105,15 @@ module.exports = grammar({
     ),
 
     // dict for {keyVar valueVar} dictValue body
+    // `value` uses _word_simple (not _concat_word) so an inline brace-quoted
+    // dict literal — `dict for {k v} {a 1 b 2} {...}` — is accepted, matching
+    // how `foreach` models its braced list operand. _concat_word lacks
+    // braced_word_simple and made the literal form an ERROR.
     dict_for: $ => seq(
       'dict',
       'for',
       field('variables', $.arguments),
-      field('value', $._concat_word),
+      field('value', $._word_simple),
       field('body', $.braced_word),
     ),
 
@@ -114,7 +122,7 @@ module.exports = grammar({
       'dict',
       'update',
       field('variable', $._concat_word),
-      repeat($._concat_word),
+      repeat($._word_simple),
       field('body', $.braced_word),
     ),
 
@@ -123,7 +131,7 @@ module.exports = grammar({
       'dict',
       'with',
       field('variable', $._concat_word),
-      repeat($._concat_word),
+      repeat($._word_simple),
       field('body', $.braced_word),
     ),
 
@@ -402,7 +410,10 @@ module.exports = grammar({
       prec.left(PREC.or_logical, seq($._expr, choice('||', 'or'), $._expr)),
     ),
 
-    ternary_expr: $ => prec.left(PREC.ternary, seq($._expr, '?', $._expr, ':', $._expr)),
+    // Right-associative, matching TCL/C: `a ? b : c ? d : e` nests as
+    // `a ? b : (c ? d : e)`. Upstream tree-sitter-tcl uses prec.left here,
+    // which builds the wrong (left-nested) tree for chained ternaries.
+    ternary_expr: $ => prec.right(PREC.ternary, seq($._expr, '?', $._expr, ':', $._expr)),
 
     elseif: $ => seq(
       'elseif',
