@@ -168,7 +168,7 @@ try {
 # Test literal keyword: finally
 # set f [open /some/file/name a]
 try {
-# keyword
+# <- keyword
     puts $f "some message"
     # ...
 } finally {
