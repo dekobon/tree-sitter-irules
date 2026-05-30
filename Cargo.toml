@@ -10,10 +10,21 @@ rust-version = "1.94"
 license = "MIT"
 
 build = "bindings/rust/build.rs"
-include = ["/LICENSE", "bindings/rust/**", "/grammar.js", "queries/*", "src/*"]
+include = [
+  "/LICENSE",
+  "bindings/rust/**",
+  "/grammar.js",
+  "queries/*",
+  "src/*",
+  "test/stress/**",
+]
 
 [lib]
 path = "bindings/rust/lib.rs"
+
+[[test]]
+name = "parse_stress"
+path = "bindings/rust/tests/parse_stress.rs"
 
 [dependencies]
 tree-sitter-language = "0.1.7"

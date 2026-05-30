@@ -1,0 +1,23 @@
+# try/finally, try/on, and trap exception handlers.
+
+when HTTP_REQUEST {
+    try {
+        set x 1
+    } finally {
+        close $fd
+    }
+
+    try {
+        open $path
+    } on error {e o} {
+        puts $e
+    }
+
+    try {
+        HTTP::collect
+    } trap {ARITH DIVZERO} {msg opts} {
+        log local0. "arith error: $msg"
+    } on ok {result} {
+        log local0. "ok: $result"
+    }
+}

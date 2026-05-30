@@ -1,0 +1,22 @@
+# Namespace-qualified built-in commands across several namespaces.
+
+when HTTP_REQUEST {
+    set host [HTTP::host]
+    set uri [HTTP::uri]
+    set client [IP::client_addr]
+    set port [TCP::client_port]
+    log local0. "host=$host uri=$uri client=$client:$port"
+
+    if { [SSL::cert count] > 0 } {
+        log local0. "client cert present"
+    }
+
+    HTTP::header insert X-Forwarded-For [IP::client_addr]
+    HTTP::header replace Host "edge.internal"
+    pool [LB::server pool]
+}
+
+when HTTP_RESPONSE {
+    HTTP::header remove Server
+    log local0. "served [HTTP::status] from [LB::server addr]"
+}

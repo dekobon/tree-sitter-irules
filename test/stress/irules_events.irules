@@ -1,0 +1,21 @@
+# Event handlers with the full set of iRules modifiers.
+
+when CLIENT_ACCEPTED {
+    set start [clock clicks]
+}
+
+when HTTP_REQUEST priority 100 {
+    HTTP::respond 200 content "ok"
+}
+
+when RULE_INIT timing on {
+    set table_name "my_table"
+}
+
+when HTTP_RESPONSE priority 500 timing off {
+    log local0. "status=[HTTP::status]"
+}
+
+when LB_FAILED {
+    log local0. "pool down for [IP::client_addr]"
+}

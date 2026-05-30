@@ -1,0 +1,18 @@
+# namespace eval, array indexing, and namespace-qualified variables.
+
+namespace eval ::ns {
+    # helper commands live here
+    proc helper { x } {
+        return [string toupper $x]
+    }
+}
+
+when HTTP_REQUEST {
+    set a $::var
+    set a $::var::sub
+    set foo($i) 1
+
+    array set headers {}
+    set headers(host) [HTTP::host]
+    set headers(method) [HTTP::method]
+}

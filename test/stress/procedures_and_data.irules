@@ -1,0 +1,21 @@
+# Procedures plus array / dict / string / regexp data handling.
+
+proc normalize { path } {
+    set p [string tolower $path]
+    regsub -all {/+} $p "/" p
+    return $p
+}
+
+when HTTP_REQUEST {
+    array set headers {}
+    set headers(host) [HTTP::host]
+    set headers(method) [HTTP::method]
+
+    set d [dict create scheme https port 443]
+    dict set d host [HTTP::host]
+
+    set path [call normalize [HTTP::path]]
+    if { [regexp {^/api/v[0-9]+} $path] } {
+        log local0. "versioned api path"
+    }
+}

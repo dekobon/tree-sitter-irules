@@ -1,0 +1,31 @@
+# Conditionals, switch, and loops in an iRules context.
+
+when HTTP_REQUEST {
+    set x 5
+
+    if {$x > 0 and $x < 10} {
+        puts "in range"
+    } elseif {$x == 0} {
+        puts "zero"
+    } else {
+        puts "out of range"
+    }
+
+    switch [HTTP::method] {
+        "GET"  { puts "get" }
+        "POST" { puts "post" }
+        default { puts "other" }
+    }
+
+    foreach name {alpha beta gamma} {
+        puts $name
+    }
+
+    for {set i 0} {$i < 3} {incr i} {
+        puts "iteration $i"
+    }
+
+    while {$x > 0} {
+        incr x -1
+    }
+}

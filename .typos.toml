@@ -12,4 +12,5 @@ extend-exclude = [
   "src/tree_sitter/**",
   "test/corpus/**",
   "test/highlight/**",
+  "test/stress/**",
 ]

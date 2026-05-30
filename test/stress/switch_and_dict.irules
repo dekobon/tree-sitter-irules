@@ -1,0 +1,16 @@
+# switch with glob patterns, dict construction/iteration, escaped strings.
+
+when HTTP_REQUEST {
+    switch -glob $uri {
+        "/api/*" { pool api_pool }
+        "/static/*" { pool static_pool }
+        default { pool default_pool }
+    }
+
+    set d [dict create a 1 b 2]
+    dict for {k v} $d {
+        puts "$k = $v"
+    }
+
+    echo "word$hi \$bye word"
+}

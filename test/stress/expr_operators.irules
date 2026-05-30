@@ -1,0 +1,14 @@
+# iRules-specific expression operators and word-form Booleans.
+
+when HTTP_REQUEST {
+    if { [HTTP::uri] starts_with "/admin" } { drop }
+    if { [HTTP::method] equals "POST" } { drop }
+    if { [HTTP::header User-Agent] contains "bot" } { drop }
+    if { [HTTP::host] ends_with ".internal" } { drop }
+    if { [HTTP::path] matches_glob "/api/*" } { drop }
+    if { [HTTP::uri] matches_regex {^/v[0-9]+/} } { drop }
+
+    if { not [info exists ::cache] or [HTTP::host] equals "" } {
+        log local0. "skip cache"
+    }
+}
