@@ -95,6 +95,13 @@ the README "Known limitations" section (`set static::foo bar`, partial
 
 ## [Unreleased]
 
+### Fixed
+
+- `regexp` now honors `--` as an end-of-options marker, so a pattern whose
+  literal text is a recognized switch token (e.g. `regexp -- -nocase $s`,
+  `regexp -all -- -- $s`) parses as the pattern instead of collapsing to an
+  `(ERROR)` node (#31).
+
 ## [0.1.0] - 2026-05-30
 
 Initial fork of

@@ -150,8 +150,8 @@ module.exports = grammar({
         '-all',
         '-inline',
         seq('-start', $._concat_word),
-        '--',
       )),
+      optional('--'),
       $._word_simple, // exp
       $._concat_word, // string
       repeat($._concat_word),
