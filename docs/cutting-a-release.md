@@ -271,7 +271,7 @@ After that, regenerate the lockfile and the parser source:
 ```bash
 npm install --package-lock-only    # picks up the new version in package-lock.json
 npx tree-sitter generate           # regenerates src/parser.c, etc.
-npx tree-sitter test               # corpus tests still pass
+make test                          # corpus tests still pass (memory-capped)
 npm run lint
 ```
 
@@ -307,7 +307,7 @@ Before tagging, on `main`:
 - [ ] `src/parser.c`, `src/grammar.json`, `src/node-types.json`
       have been regenerated with the locally-installed
       `tree-sitter-cli` and committed.
-- [ ] `npx tree-sitter test` is clean.
+- [ ] `make test` is clean.
 - [ ] `npm run lint` is clean.
 - [ ] If `bindings/rust/**` or `Cargo.toml` changed: `cargo clippy
       --all-targets -- -D warnings` and `cargo test` are clean.
