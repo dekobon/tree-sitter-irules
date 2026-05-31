@@ -58,6 +58,11 @@ jobs:
   test:
     name: Run tests
     runs-on: ${{matrix.os}}
+    # Backstop for issue #32: a malformed highlight-test assertion can make
+    # tree-sitter-cli spin in an unbounded allocation. Cap the job so that
+    # becomes a fast failure instead of running to the 6h default. The real
+    # suite finishes in a couple of minutes.
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
