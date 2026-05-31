@@ -36,9 +36,12 @@ One push of a `v*` tag runs this end-to-end:
    them as artefacts.
 5. **npm-publish** — downloads every prebuild into `prebuilds/`,
    then runs `npm publish --provenance --access public` for
-   `tree-sitter-irules`. The package's `files` array
-   ships the prebuilds, the WASM blob, the queries, the bindings,
-   and the generated parser source.
+   `tree-sitter-irules`. The step first queries the registry and
+   skips if that version is already on npm, so — like
+   `crates-publish` and `pypi-publish` — re-runs on the same tag are
+   idempotent. The package's `files` array ships the prebuilds, the
+   WASM blob, the queries, the bindings, and the generated parser
+   source.
 6. **pypi-wheels** / **pypi-sdist** — builds abi3 wheels via
    `cibuildwheel` on each OS and an sdist via `python -m build
    --sdist`.
@@ -509,11 +512,16 @@ The fix then depends on which job failed:
   step no-ops on any file PyPI already has. A re-run after a
   partial upload completes the missing files without erroring on
   the duplicates.
-- **npm upload failed**: `npm publish` rejects duplicate versions
-  outright. Within 24 hours of upload, `npm unpublish
-  tree-sitter-irules@X.Y.Z` is allowed and lets you
-  re-publish the same version. After 24 hours, the version is
-  immutable — bump to the next patch and re-tag.
+- **npm upload failed**: `npm-publish` queries the registry and
+  skips when the version is already present, so re-running the
+  workflow on the same tag is idempotent — it uploads if the prior
+  attempt never reached npm and no-ops if it did. (The guard exists
+  because `npm publish` on its own rejects a duplicate version
+  outright, which would fail the job and skip `github-release`.) If
+  you instead need to *replace* an already-published artifact, `npm
+  unpublish tree-sitter-irules@X.Y.Z` is allowed within 24 hours of
+  upload; after that the version is immutable — bump to the next
+  patch and re-tag.
 - **`github-release` failed**: re-run via
   `gh workflow run release.yml --ref vX.Y.Z`, or create the release
   by hand with `gh release create vX.Y.Z --notes-file
