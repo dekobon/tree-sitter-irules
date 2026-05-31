@@ -1,6 +1,10 @@
 # tree-sitter-irules
 
 [![CI](https://github.com/dekobon/tree-sitter-irules/actions/workflows/ci.yml/badge.svg)](https://github.com/dekobon/tree-sitter-irules/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/dekobon/tree-sitter-irules/actions/workflows/codeql.yml/badge.svg)](https://github.com/dekobon/tree-sitter-irules/actions/workflows/codeql.yml)
+[![npm](https://img.shields.io/npm/v/tree-sitter-irules)](https://www.npmjs.com/package/tree-sitter-irules)
+[![crates.io](https://img.shields.io/crates/v/tree-sitter-irules)](https://crates.io/crates/tree-sitter-irules)
+[![PyPI](https://img.shields.io/pypi/v/tree-sitter-irules)](https://pypi.org/project/tree-sitter-irules/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A [tree-sitter](https://tree-sitter.github.io/tree-sitter/) parser for F5
