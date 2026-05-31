@@ -95,26 +95,6 @@ parse as ordinary TCL commands. Linting/validation is out of scope here.
   the grammar but is **not** documented on F5's Operators page. It is
   retained for upstream `tree-sitter-tcl` compatibility; prefer
   `matches_glob` or `matches_regex`.
-- **Highlight-test harness can hang/OOM on a stray assertion comment.**
-  This is an upstream
-  [`tree-sitter-cli`](https://github.com/tree-sitter/tree-sitter) bug,
-  tracked in
-  [#32](https://github.com/dekobon/tree-sitter-irules/issues/32). **Scope:
-  it affects only `tree-sitter test`** — a developer/CI concern. The
-  parser and the `tree-sitter-highlight` library that editors and Neovim
-  use never run the assertion comparison, so **end-user iRules
-  highlighting is unaffected**. The runner scans every comment in a
-  `test/highlight/*.irules` file for `^`/`<-` highlight-assertion markers;
-  when such a marker resolves against the wrong line (e.g. a documentation
-  comment that mentions the namespace regex `"^[A-Z][A-Z0-9_]*::"`, whose
-  `^` is read as an assertion caret), the runner spins in an unbounded
-  allocation and is OOM-killed instead of reporting a clean failure.
-  Reproducible in 8 bytes (`# x` then `# ^x`). This repo bounds the
-  symptom: `make test` runs under an address-space cap (turning the
-  runaway into a fast, labelled failure) and CI bounds the test job with a
-  timeout. Workaround when writing highlight tests: keep documentation and
-  header comments free of `^`/`<-` annotation-shaped text — a single-line
-  header is the simplest way.
 
 ## Status
 
