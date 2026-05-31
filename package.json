@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-irules",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Tree-sitter parser for F5 iRules (TCL-derived)",
   "main": "bindings/node",
   "types": "bindings/node",
