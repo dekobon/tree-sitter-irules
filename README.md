@@ -11,7 +11,29 @@ A [tree-sitter](https://tree-sitter.github.io/tree-sitter/) parser for F5
 [iRules](https://clouddocs.f5.com/api/irules/) — the TCL-derived scripting
 language used to program traffic management on F5 BIG-IP.
 
-Repository: <https://github.com/dekobon/tree-sitter-irules>.
+## Why use this
+
+iRules has almost no modern editor support, so most tools fall back on
+crude keyword matching. This parser teaches tree-sitter the actual
+structure of an iRules script — its event handlers, namespaced commands,
+and operators — which unlocks the tooling other languages take for granted:
+
+- **Real syntax highlighting** that knows an event from a command from a
+  variable, and updates as you type. Backed by the shipped
+  `queries/irules/highlights.scm`.
+- **Structural folding** of event handlers and blocks, so you can collapse
+  a rule to see its shape at a glance (`queries/irules/folds.scm`).
+- **A foundation for richer tooling** — a precise syntax tree is what
+  code navigation (go-to-definition, find-references), linters that catch
+  mistakes (a misspelled event, a command used in the wrong context), and
+  project-wide refactoring are built on. The parse tree is in place; those
+  higher-level features land as the matching queries (`locals.scm`,
+  `tags.scm`) and integrations are added.
+
+Because tree-sitter parses incrementally and tolerates errors, this works
+on every keystroke and even while a rule is half-written.
+
+## How iRules differs from TCL
 
 iRules are syntactically a dialect of TCL with three additions:
 
