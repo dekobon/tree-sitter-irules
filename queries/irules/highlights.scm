@@ -217,9 +217,20 @@
 ; keywords so `on error`, `on ok`, etc. read like keywords; integer
 ; codes and $var substitutions intentionally fall through.
 ;
-; The leading `.` is a tree-sitter query anchor meaning "first named
-; child" — without it, the pattern would also match a simple_word
-; appearing later in the on_handler subtree (e.g. inside arguments).
+; The leading `.` anchors the capture to on_handler's first named child
+; and is load-bearing. The handler body is `_word`, which resolves to a
+; bare simple_word whenever the body is not braced, so
+; `try {x} on error {r o} continue` has *two* direct simple_word children
+; of on_handler — the result code and the body. Without the anchor the
+; body word would be highlighted as a keyword too. (The `arguments` and
+; `braced_word` wrappers only explain why the *other* words are safe;
+; they do not make the anchor redundant.)
+;
+; No highlight assertion can pin this: assertions can only assert that a
+; capture is present at a position, never that one is absent, and the
+; unanchored body word has no competing capture to displace. The AST
+; shape the anchor guards against is pinned instead by the corpus test
+; "try with unbraced on-handler body".
 (on_handler
   . (simple_word) @keyword
   (#any-of? @keyword "ok" "error" "return" "break" "continue"))
