@@ -147,11 +147,12 @@ namespace eval myNs {
     # Inside a namespace block, the keyword should still be highlighted.
 }
 
-# Test literal keyword: on
+# `on` is a keyword only as a try-handler introducer (see below). At
+# command position it is an ordinary command name, so pin @function here.
 on event {
+# <- function
     # Dummy event handler block.
 }
-# <- keyword
 
 # Test literal keyword: set
 set myVar 10
