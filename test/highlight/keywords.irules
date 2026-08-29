@@ -191,8 +191,24 @@ try {
     puts $r
 }
 
-# Integer result codes intentionally fall through to the generic @number
-# capture; pin that so a future broadening of the on-code keyword query
-# (e.g. dropping the #any-of? predicate) surfaces as a test failure.
+# Cover every code in the on-handler #any-of? list, not just ok/error, so
+# shrinking that list surfaces as a test failure. A non-numeric code
+# outside the list gets no capture at all, and a highlight assertion can
+# only assert that a capture is present, never that one is absent — so
+# these positive cases are the only guard the list has.
+try { x } on return {r o} { puts $r }
+#            ^ keyword
+try { x } on break {r o} { puts $r }
+#            ^ keyword
+try { x } on continue {r o} { puts $r }
+#            ^ keyword
+
+# An integer result code reads as @number. Two independent barriers keep
+# it out of @keyword: the #any-of? predicate rejects "42", so the
+# on-handler pattern never matches it at all, and the generic
+# simple_word/@number pattern sits after the on-handler pattern, which
+# wins because a later pattern takes precedence on the same node. Either
+# one alone suffices, so this assertion pins the @number fall-through --
+# it does NOT guard the predicate; the positive cases above do that.
 try { x } on 42 {r o} { puts $r }
 #            ^ number
