@@ -301,3 +301,25 @@ try {
       (set
         (id)
         (simple_word)))))
+
+================================================================================
+try with unbraced on-handler body
+================================================================================
+
+try { x } on error {r o} continue
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (try
+    (braced_word
+      (command
+        (simple_word)))
+    (on_handler
+      (simple_word)
+      (arguments
+        (argument
+          (simple_word))
+        (argument
+          (simple_word)))
+      (simple_word))))
