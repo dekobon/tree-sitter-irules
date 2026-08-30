@@ -125,6 +125,16 @@ the README "Known limitations" section (`set static::foo bar`, partial
   70.1.0 and the build already requires `setuptools>=82`. `wheel` is
   dropped from `[build-system] requires`, since nothing imports it now.
 
+### Fixed
+
+- Added the missing `go.sum`. It had never been committed, so `go build`,
+  `go test`, and `go list -m all` all failed with `missing go.sum entry
+  for go.mod file`, and nothing pinned the Go dependency checksums —
+  CodeQL's Go job stayed green only because its autobuilder silently ran
+  its own `go mod download` first. `go mod tidy` records the hashes with
+  no change to `go.mod`; both dependencies were already at their newest
+  published versions.
+
 ## [0.1.1] - 2026-05-30
 
 ### Fixed
