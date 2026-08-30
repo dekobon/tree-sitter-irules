@@ -95,6 +95,8 @@ the README "Known limitations" section (`set static::foo bar`, partial
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-30
+
 ### Changed
 
 - `make test` no longer runs the suite under a `ulimit -v` address-space
