@@ -111,6 +111,15 @@ the README "Known limitations" section (`set static::foo bar`, partial
   vendored `src/tree_sitter/*.h` byte-identical (parser ABI stays 15), so
   the change is contributor-facing only: it is the CLI version CI now
   resolves from `package-lock.json`.
+- **BREAKING:** the Python binding now requires 3.11 or newer
+  (`requires-python = ">=3.11"`, was `>=3.9`). This collapses four
+  floors that had drifted apart: metadata said 3.9, `cibuildwheel` built
+  `cp39-*`, `setup.py` forced the wheel tag to `cp38`, and the extension
+  compiled against the 3.8 limited API — so the published wheel was
+  tagged `cp38-abi3` while `Requires-Python` blocked 3.8 from installing
+  it. All four now say 3.11 and wheels tag `cp311-abi3`, installable on
+  3.11 through 3.14+. Python 3.9 reached EOL 2025-10-31 and 3.10 reaches
+  it 2026-10-31.
 
 ## [0.1.1] - 2026-05-30
 
