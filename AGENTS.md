@@ -79,14 +79,9 @@ Before considering a change done:
 
 ```bash
 npx tree-sitter generate
-make test       # not bare `npx tree-sitter test` — see below
+make test
 npm run lint
 ```
-
-Run the suite via `make test`, not bare `npx tree-sitter test`. `make
-test` runs the same tests under a memory cap so a malformed highlight
-assertion aborts fast with a clear message instead of OOM-killing the
-machine (see [#32](https://github.com/dekobon/tree-sitter-irules/issues/32)).
 
 If grammar / scanner changed, run `make test` until clean.
 
