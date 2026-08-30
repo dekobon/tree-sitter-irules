@@ -120,6 +120,10 @@ the README "Known limitations" section (`set static::foo bar`, partial
   it. All four now say 3.11 and wheels tag `cp311-abi3`, installable on
   3.11 through 3.14+. Python 3.9 reached EOL 2025-10-31 and 3.10 reaches
   it 2026-10-31.
+- `setup.py` imports `bdist_wheel` from `setuptools.command.bdist_wheel`
+  rather than `wheel.bdist_wheel`; setuptools adopted the command in
+  70.1.0 and the build already requires `setuptools>=82`. `wheel` is
+  dropped from `[build-system] requires`, since nothing imports it now.
 
 ## [0.1.1] - 2026-05-30
 
