@@ -81,7 +81,7 @@ jobs:
             exit 1
           fi
           printf 'ref=v%s\n' "$version" >> "$GITHUB_OUTPUT"
-      - uses: tree-sitter/setup-action/cli@eeb902ac2f1be576edc296309872cf476a209b7f # v2
+      - uses: tree-sitter/setup-action/cli@49f8c1f20b60102eae8c033bb7c7f6cd056f6086 # v2
         with:
           tree-sitter-ref: ${{ steps.ts-cli.outputs.ref }}
       - uses: tree-sitter/parser-test-action@aba4a3de737f86f8ce83be38166a1ab521d4c960 # v2
@@ -116,7 +116,7 @@ jobs:
         with:
           toolchain: "1.94"
           components: clippy
-      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
       - run: cargo clippy --all-targets -- -D warnings
 
   cargo-deny:
@@ -135,18 +135,18 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: typos
-        uses: crate-ci/typos@8a48f81b6c64dcfea44b3633223084c4be58ac5f # v1.49.0
+        uses: crate-ci/typos@4d9c206a77c041268485162b8e2579ad7a5cb9a3 # v1.50.0
       - name: taplo (TOML format check)
-        uses: uncenter/setup-taplo@09968a8ae38d66ddd3d23802c44bf6122d7aa991 # v1
+        uses: uncenter/setup-taplo@b18c8c8302695fe63d6853bc004006215ac52b91 # v2
         with:
-          # Pinned: the action downloads taplo-full-* assets which
-          # only exist up through 0.9.3. `latest` (and 0.10.0) ship
-          # only taplo-* assets and the action fails with
-          # "gzip: stdin: not in gzip format".
-          version: "0.9.3"
+          # Pinned rather than `latest` so a taplo release cannot change
+          # the formatting verdict without a deliberate bump here.
+          # setup-taplo v2 is required for taplo >= 0.10.0 (v1 only
+          # knows the taplo-full-* asset names, which stop at 0.9.3).
+          version: "0.10.0"
       - run: taplo format --check
       - name: markdownlint
-        uses: DavidAnson/markdownlint-cli2-action@ded1f9488f68a970bc66ea5619e13e9b52e601cd # v23
+        uses: DavidAnson/markdownlint-cli2-action@21c1be1b93ad9ed58fa840aacc3f279cde2a72ff # v24
         with:
           globs: "**/*.md"
 
