@@ -2,8 +2,8 @@ from os.path import isdir, join
 from platform import system
 
 from setuptools import Extension, find_packages, setup
+from setuptools.command.bdist_wheel import bdist_wheel
 from setuptools.command.build import build
-from wheel.bdist_wheel import bdist_wheel
 
 
 class Build(build):
@@ -22,7 +22,7 @@ class BdistWheel(bdist_wheel):
     def get_tag(self):
         python, abi, platform = super().get_tag()
         if python.startswith("cp"):
-            python, abi = "cp38", "abi3"
+            python, abi = "cp311", "abi3"
         return python, abi, platform
 
 
@@ -45,7 +45,7 @@ setup(
                 ["-std=c11"] if system() != 'Windows' else []
             ),
             define_macros=[
-                ("Py_LIMITED_API", "0x03080000"),
+                ("Py_LIMITED_API", "0x030B0000"),
                 ("PY_SSIZE_T_CLEAN", None)
             ],
             include_dirs=["src"],

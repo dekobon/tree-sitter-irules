@@ -103,8 +103,48 @@ the README "Known limitations" section (`set static::foo bar`, partial
   [tree-sitter/tree-sitter#5097](https://github.com/tree-sitter/tree-sitter/pull/5097)
   and released in `tree-sitter-cli` 0.26.10 via the `release-0.26` backport
   [#5674](https://github.com/tree-sitter/tree-sitter/pull/5674); this project
-  pins 0.26.13, so a malformed assertion now reports a clean failure on its
+  pins 0.27.0, so a malformed assertion now reports a clean failure on its
   own (#32).
+- Bumped the pinned `tree-sitter-cli` from 0.26.13 to 0.27.0 and the Rust
+  `tree-sitter` dev-dependency from 0.26 to 0.27. Regenerating under 0.27.0
+  leaves `src/parser.c`, `src/grammar.json`, `src/node-types.json` and the
+  vendored `src/tree_sitter/*.h` byte-identical (parser ABI stays 15), so
+  the change is contributor-facing only: it is the CLI version CI now
+  resolves from `package-lock.json`.
+- **BREAKING:** the Python binding now requires 3.11 or newer
+  (`requires-python = ">=3.11"`, was `>=3.9`). This collapses four
+  floors that had drifted apart: metadata said 3.9, `cibuildwheel` built
+  `cp39-*`, `setup.py` forced the wheel tag to `cp38`, and the extension
+  compiled against the 3.8 limited API — so the published wheel was
+  tagged `cp38-abi3` while `Requires-Python` blocked 3.8 from installing
+  it. All four now say 3.11 and wheels tag `cp311-abi3`, installable on
+  3.11 through 3.14+. Python 3.9 reached EOL 2025-10-31 and 3.10 reaches
+  it 2026-10-31.
+- `setup.py` imports `bdist_wheel` from `setuptools.command.bdist_wheel`
+  rather than `wheel.bdist_wheel`; setuptools adopted the command in
+  70.1.0 and the build already requires `setuptools>=82`. `wheel` is
+  dropped from `[build-system] requires`, since nothing imports it now.
+- Upgraded `eslint` from 9 to 10.9.1 and moved the CI lint job from Node
+  20 (EOL April 2026) to Node 24. Two blockers in
+  `eslint-config-treesitter` 1.0.2 are handled locally rather than by
+  waiting on upstream, which has not republished since 2024-09-23: an
+  `overrides` entry forces `eslint-plugin-jsdoc` to `^62.9.0` (the first
+  major peering eslint 10; 63+ would raise the Node floor to 22.13), and
+  `globals` is declared as a direct devDependency because the config
+  imports it without declaring it and eslint 10 removed the
+  `@eslint/eslintrc` transitive that used to supply it. `engines.node`
+  stays `>=20` — eslint is a devDependency and must not narrow who can
+  install the published parser.
+
+### Fixed
+
+- Added the missing `go.sum`. It had never been committed, so `go build`,
+  `go test`, and `go list -m all` all failed with `missing go.sum entry
+  for go.mod file`, and nothing pinned the Go dependency checksums —
+  CodeQL's Go job stayed green only because its autobuilder silently ran
+  its own `go mod download` first. `go mod tidy` records the hashes with
+  no change to `go.mod`; both dependencies were already at their newest
+  published versions.
 
 ## [0.1.1] - 2026-05-30
 

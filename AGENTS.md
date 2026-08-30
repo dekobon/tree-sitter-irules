@@ -144,6 +144,25 @@ no `~/.config/tree-sitter/config.json`. It is harmless — parsing still
 uses the locally-compiled grammar — and `generate` / `test` never emit
 it. Run `tree-sitter init-config` once to silence it if desired.
 
+### ESLint note (two entries in `package.json` look wrong but are not)
+
+`package.json` carries two things that a tidy-up would plausibly delete.
+Both are load-bearing, and removing either breaks `npm run lint`:
+
+- **`globals` in `devDependencies`.** Nothing in this repo imports it.
+  `eslint-config-treesitter`'s `index.js` does, without declaring it —
+  it relied on eslint 9 pulling `globals` in via `@eslint/eslintrc`.
+  ESLint 10 removed eslintrc entirely, so the config dies with
+  `ERR_MODULE_NOT_FOUND` unless we hoist `globals` ourselves.
+- **The `overrides` block forcing `eslint-plugin-jsdoc@^62`.**
+  `eslint-config-treesitter` 1.0.2 pins `^50`, whose peer range stops at
+  eslint 9. Upstream already fixed this to `^62.7.0` in the tree-sitter
+  monorepo (`crates/cli/eslint`) but has not republished since
+  2024-09-23. Pin `^62`, not `^64`: jsdoc 63+ raises its Node floor to
+  22.13+, which would force a Node bump for no gain.
+
+Drop both when `eslint-config-treesitter` 1.0.3 ships.
+
 ## Versioning, commits, and changelog
 
 This project uses Conventional Commits, Semantic Versioning, and a

@@ -24,6 +24,8 @@ let package = Package(
                     "bindings/rust",
                     "bindings/swift/TreeSitterIrulesTests",
                     "prebuilds",
+                    "go.mod",
+                    "go.sum",
                     "grammar.js",
                     "package.json",
                     "package-lock.json",
