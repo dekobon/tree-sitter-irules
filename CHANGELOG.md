@@ -103,8 +103,14 @@ the README "Known limitations" section (`set static::foo bar`, partial
   [tree-sitter/tree-sitter#5097](https://github.com/tree-sitter/tree-sitter/pull/5097)
   and released in `tree-sitter-cli` 0.26.10 via the `release-0.26` backport
   [#5674](https://github.com/tree-sitter/tree-sitter/pull/5674); this project
-  pins 0.26.13, so a malformed assertion now reports a clean failure on its
+  pins 0.27.0, so a malformed assertion now reports a clean failure on its
   own (#32).
+- Bumped the pinned `tree-sitter-cli` from 0.26.13 to 0.27.0 and the Rust
+  `tree-sitter` dev-dependency from 0.26 to 0.27. Regenerating under 0.27.0
+  leaves `src/parser.c`, `src/grammar.json`, `src/node-types.json` and the
+  vendored `src/tree_sitter/*.h` byte-identical (parser ABI stays 15), so
+  the change is contributor-facing only: it is the CLI version CI now
+  resolves from `package-lock.json`.
 
 ## [0.1.1] - 2026-05-30
 
