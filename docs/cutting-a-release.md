@@ -271,7 +271,7 @@ After that, regenerate the lockfile and the parser source:
 ```bash
 npm install --package-lock-only    # picks up the new version in package-lock.json
 npx tree-sitter generate           # regenerates src/parser.c, etc.
-make test                          # corpus tests still pass (memory-capped)
+make test                          # corpus + highlight tests still pass
 npm run lint
 ```
 

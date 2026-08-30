@@ -1,7 +1,9 @@
 # iRules namespace highlight assertions sourced from F5 iRules docs.
-# AVOID multi-line header comments that combine a URL-heavy line and
-# a literal quoted regex like the namespace match pattern: that combo
-# triggers a tree-sitter test runner hang. Keep header to one line.
+# Keep annotation-shaped text out of the prose comments here: in ANY
+# comment the highlight-test runner treats an assertion marker (a caret,
+# or a less-than plus hyphen) followed by a capture-name-shaped token as
+# an assertion against the preceding line. Writing the namespace match
+# pattern out literally in a comment fails the suite (#32).
 
 CLIENTSSL::cipher_name
 # <- function.builtin

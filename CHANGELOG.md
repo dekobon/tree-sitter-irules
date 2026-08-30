@@ -95,6 +95,17 @@ the README "Known limitations" section (`set static::foo bar`, partial
 
 ## [Unreleased]
 
+### Changed
+
+- `make test` no longer runs the suite under a `ulimit -v` address-space
+  cap. The cap worked around an unbounded allocation in `tree-sitter-cli`'s
+  highlight-assertion runner, fixed upstream in
+  [tree-sitter/tree-sitter#5097](https://github.com/tree-sitter/tree-sitter/pull/5097)
+  and released in `tree-sitter-cli` 0.26.10 via the `release-0.26` backport
+  [#5674](https://github.com/tree-sitter/tree-sitter/pull/5674); this project
+  pins 0.26.13, so a malformed assertion now reports a clean failure on its
+  own (#32).
+
 ## [0.1.1] - 2026-05-30
 
 ### Fixed
