@@ -107,3 +107,8 @@ updates:
     labels:
       - dependencies
       - swift
+    groups:
+      swift-minor-and-patch:
+        update-types:
+          - minor
+          - patch
