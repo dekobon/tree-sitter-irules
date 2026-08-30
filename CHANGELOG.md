@@ -124,6 +124,17 @@ the README "Known limitations" section (`set static::foo bar`, partial
   rather than `wheel.bdist_wheel`; setuptools adopted the command in
   70.1.0 and the build already requires `setuptools>=82`. `wheel` is
   dropped from `[build-system] requires`, since nothing imports it now.
+- Upgraded `eslint` from 9 to 10.9.1 and moved the CI lint job from Node
+  20 (EOL April 2026) to Node 24. Two blockers in
+  `eslint-config-treesitter` 1.0.2 are handled locally rather than by
+  waiting on upstream, which has not republished since 2024-09-23: an
+  `overrides` entry forces `eslint-plugin-jsdoc` to `^62.9.0` (the first
+  major peering eslint 10; 63+ would raise the Node floor to 22.13), and
+  `globals` is declared as a direct devDependency because the config
+  imports it without declaring it and eslint 10 removed the
+  `@eslint/eslintrc` transitive that used to supply it. `engines.node`
+  stays `>=20` — eslint is a devDependency and must not narrow who can
+  install the published parser.
 
 ### Fixed
 
