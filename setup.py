@@ -34,7 +34,7 @@ class EggInfo(egg_info):
     def find_sources(self):
         super().find_sources()
         self.filelist.include("src/tree_sitter/*.h")
-        self.filelist.recursive_include("queries", "*.scm")
+        self.filelist.graft("queries")
 
 
 setup(
