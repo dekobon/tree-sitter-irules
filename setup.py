@@ -47,6 +47,12 @@ setup(
     package_data={
         "tree_sitter_irules": ["*.pyi", "py.typed"],
     },
+    # binding.c sits in the package directory, so include_package_data
+    # would otherwise install it into site-packages beside the compiled
+    # module. It still reaches the sdist as an Extension source.
+    exclude_package_data={
+        "tree_sitter_irules": ["*.c"],
+    },
     ext_package="tree_sitter_irules",
     ext_modules=[
         Extension(
