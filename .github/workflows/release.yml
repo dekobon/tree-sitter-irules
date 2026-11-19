@@ -126,27 +126,14 @@ jobs:
       - uses: tree-sitter/setup-action/cli@faab9a23fa6195da0f1cf868219cc1e89f238d3d # v2
         with:
           tree-sitter-ref: ${{ steps.ts-cli.outputs.ref }}
-      - uses: tree-sitter/parser-test-action@aba4a3de737f86f8ce83be38166a1ab521d4c960 # v2
+      - uses: tree-sitter/parser-test-action@92e35c06b51ea26c80ffbd3cc8d9286d9110df17 # v3
         with:
+          # Also the publish gate: v3 fails if the committed src/ artifacts
+          # drift from grammar.js, and every registry ships them as committed.
           generate: true
           test-parser: true
           test-rust: true
           rust-version: "1.94"
-      # Refuse to publish if the committed parser artifacts have
-      # drifted from grammar.js. crates.io / npm / PyPI all ship the
-      # files as committed (not the in-runner regenerated copy), so a
-      # stale parser.c would silently reach every downstream consumer.
-      # Linux only — line-ending normalization on Windows produces
-      # spurious diffs.
-      - name: Verify generated parser artifacts are up to date
-        if: runner.os == 'Linux'
-        shell: bash
-        run: |-
-          set -eu
-          if ! git diff --exit-code src/parser.c src/grammar.json src/node-types.json; then
-            echo "Committed parser artifacts are stale. Run 'npx tree-sitter generate' and commit the result before tagging." >&2
-            exit 1
-          fi
 
   # Authentication is via crates.io Trusted Publishing (OIDC): the
   # `auth` step exchanges the runner's GitHub-minted ID token for a
