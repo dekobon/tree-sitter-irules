@@ -5,17 +5,21 @@ from setuptools import Extension, find_packages, setup
 from setuptools.command.bdist_wheel import bdist_wheel
 from setuptools.command.build import build
 from setuptools.command.egg_info import egg_info
+from setuptools.errors import FileError
 
 
 class Build(build):
     # Queries live at the repo root (`queries/irules/*.scm`), outside
     # the Python package source tree, so `package_data` cannot reach
     # them. Copy them into `build_lib` here; the wheel-builder then
-    # includes them under `tree_sitter_irules/queries/irules/`.
+    # includes them under `tree_sitter_irules/queries/irules/`. A missing
+    # directory is an error rather than a skip: skipping silently produced
+    # wheels without queries from incomplete sdists (#80).
     def run(self):
-        if isdir("queries"):
-            dest = join(self.build_lib, "tree_sitter_irules", "queries")
-            self.copy_tree("queries", dest)
+        if not isdir("queries"):
+            raise FileError("queries/ not found; refusing to build a wheel without queries")
+        dest = join(self.build_lib, "tree_sitter_irules", "queries")
+        self.copy_tree("queries", dest)
         super().run()
 
 
