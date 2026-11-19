@@ -15,12 +15,14 @@ One push of a `v*` tag runs this end-to-end:
 
 1. **validate** — derives the version from the tag and checks parity
    against `tree-sitter.json` (`metadata.version`), `package.json`,
-   `package-lock.json`, `Cargo.toml`, and `pyproject.toml`. Verifies
-   the distribution names match the expected `tree-sitter-irules`
-   strings on each registry. Greps `CHANGELOG.md` for a matching
-   `## [x.y.z]` section.
-2. **test** — runs `tree-sitter generate` and the corpus tests, plus
-   the Rust binding tests, on Ubuntu, Windows, and macOS-14. The
+   `Cargo.toml`, and `pyproject.toml`. Verifies the package names in
+   `package.json`, `package-lock.json`, `Cargo.toml`, and
+   `pyproject.toml` match the expected `tree-sitter-irules`. Greps
+   `CHANGELOG.md` for a matching `## [x.y.z]` section.
+2. **test** — runs `tree-sitter generate` and fails if the committed
+   `src/parser.c`, `src/grammar.json`, or `src/node-types.json`
+   differs from its output, then runs the corpus tests and the Rust
+   binding tests, on Ubuntu, Windows, and macOS. The
    `tree-sitter-cli` ref is resolved from
    `package-lock.json` so the CI parser matches the committed
    `src/parser.c`.
@@ -43,8 +45,9 @@ One push of a `v*` tag runs this end-to-end:
    skips if that version is already on npm, so — like
    `crates-publish` and `pypi-publish` — re-runs on the same tag are
    idempotent. The package's `files` array ships the prebuilds, the
-   WASM blob, the queries, the bindings, and the generated parser
-   source.
+   queries, the Node binding, and everything under `src/`. It also
+   lists `*.wasm`, but nothing in the pipeline builds a WASM file, so
+   none ships.
 7. **pypi-wheels** / **pypi-sdist** — builds abi3 wheels via
    `cibuildwheel` on each OS and an sdist via `python -m build`, which
    also builds a throwaway wheel from that sdist so an unbuildable sdist
@@ -100,8 +103,8 @@ fast with an explicit claims-mismatch / OIDC error.
    against it.
 2. **Bootstrap the crate on crates.io** (only required before the
    very first release; skip if `tree-sitter-irules` already
-   exists on crates.io). Unlike npm and PyPI, crates.io does not
-   yet support **pending** trusted publishers — the crate must
+   exists on crates.io). Like npm, and unlike PyPI, crates.io does
+   not yet support **pending** trusted publishers — the crate must
    exist before a TP entry can be registered against it. From a
    clean checkout at the release-prep commit:
 
@@ -195,17 +198,21 @@ TP pipeline.
    ```
 
 2. **Register the Trusted Publisher on the now-existing package.**
-   On `npmjs.com`, navigate to
-   **https://www.npmjs.com/package/tree-sitter-irules/access**
+   On `npmjs.com`, open the package's
+   [access settings](https://www.npmjs.com/package/tree-sitter-irules/access)
    → **Trusted Publisher** section → **GitHub Actions** → fill in:
 
    - Organization or user: `dekobon`
    - Repository: `tree-sitter-irules`
    - Workflow filename: `release.yml`
    - Environment: `release`
+   - Allowed actions: **`npm publish`**. The workflow publishes
+     directly, and entries created after 2026-09-03 default to
+     `npm stage publish` only.
 
    All fields are case-sensitive and must match the OIDC claims
-   exactly.
+   exactly. A new entry expires unless a publish goes through it
+   within 2 days, so register it shortly before tagging.
 
 3. After this, the automated `npm-publish` job authenticates via
    OIDC for every subsequent release — no token, no OTP, no human
@@ -221,8 +228,8 @@ OIDC exchange is automatic.
 
 ### Distribution names
 
-The unscoped `tree-sitter-irules` name is currently free on every
-flat registry, so each ecosystem uses the same unscoped name:
+This project owns the unscoped `tree-sitter-irules` name on all
+three flat registries, so each ecosystem uses the same name:
 
 | Registry | Name |
 |----------|------|
@@ -239,8 +246,8 @@ the expected name above. A partial rename would publish under the
 wrong name on one registry and either fail (collision) or squat on
 a new name, so the check is intentionally noisy.
 
-If the first publish to any registry returns a name-already-taken
-error, switch to a scoped/prefixed alternative (e.g.
+For a fork or a rename: if the first publish to any registry
+returns a name-already-taken error, switch to a scoped/prefixed alternative (e.g.
 `@dekobon/tree-sitter-irules` on npm,
 `dekobon-tree-sitter-irules` on crates.io and PyPI) and update
 **all of these in the same commit**: `package.json` `name` (then
@@ -252,14 +259,15 @@ URL (the shard path is derived from the canonical crate name).
 
 The Go module path, the Swift package URL, and the `libtree-sitter-irules`
 C library name are **convention only** — `validate` does not check
-them. Renaming `bindings/go/go.mod`, the Swift `Package.swift`
+them. Renaming the module in `go.mod`, the Swift `Package.swift`
 identifier, or the C library name will not fail CI, so verify
 those manually if you rename the repo or fork.
 
 Go and Swift consumers fetch the source directly from the tagged
-Git ref; there is no separate publish step for them. The
-`validate → test` chain still runs on every tag, so a broken Go
-or Swift binding fails the release before downstream users see it.
+Git ref; there is no separate publish step for them. Pushing the
+tag releases them whether or not `release.yml` then succeeds, and
+neither `release.yml` nor `ci.yml` builds or tests the Go or Swift
+binding, so the pre-release checklist covers them by hand.
 
 ## Bumping the version
 
@@ -277,10 +285,13 @@ updates all four files in one go:
 make version    # prompts for the new version, runs tree-sitter version <X.Y.Z>
 ```
 
-After that, regenerate the lockfile and the parser source:
+As of CLI 0.27.2 it leaves both lockfiles alone, so refresh them,
+then regenerate the parser source. A stale `Cargo.lock` fails
+`cargo publish --locked` in `crates-package`.
 
 ```bash
 npm install --package-lock-only    # picks up the new version in package-lock.json
+cargo update --workspace --offline # picks up the new version in Cargo.lock
 npx tree-sitter generate           # regenerates src/parser.c, etc.
 make test                          # corpus + highlight tests still pass
 npm run lint
@@ -290,10 +301,11 @@ The committed `src/parser.c` must be generated by the same
 `tree-sitter-cli` version that CI uses. CI resolves the version
 from `package-lock.json` (`packages["node_modules/tree-sitter-cli"].version`)
 and pins `tree-sitter/setup-action/cli@v2` to that exact tag.
-Always regenerate `src/parser.c` with the locally-installed CLI
-(`npx tree-sitter generate`) — never with a globally-installed
-one that may be a different version — and commit the lockfile,
-`tree-sitter.json`, and `parser.c` together.
+What matters is that the CLI's `tree-sitter --version` matches that
+lockfile version, not how it was installed. `npx tree-sitter` is
+usually right; AGENTS.md covers what to use when the npm binary is
+stale or won't run. A mismatched global CLI is the classic footgun.
+Commit both lockfiles, `tree-sitter.json`, and `parser.c` together.
 
 Pick the version per SemVer, using the AGENTS.md "is this
 breaking?" rules:
@@ -314,14 +326,18 @@ Before tagging, on `main`:
 - [ ] All intended changes are merged and CI is green.
 - [ ] Version bumped via `make version` — `tree-sitter.json`,
       `package.json`, `Cargo.toml`, `pyproject.toml` all show the
-      new value, and `package-lock.json` has been regenerated.
+      new value, and `package-lock.json` and `Cargo.lock` have been
+      refreshed.
 - [ ] `src/parser.c`, `src/grammar.json`, `src/node-types.json`
-      have been regenerated with the locally-installed
-      `tree-sitter-cli` and committed.
+      have been regenerated with a `tree-sitter-cli` matching the
+      lockfile version and committed.
 - [ ] `make test` is clean.
 - [ ] `npm run lint` is clean.
 - [ ] If `bindings/rust/**` or `Cargo.toml` changed: `cargo clippy
       --all-targets -- -D warnings` and `cargo test` are clean.
+- [ ] `go test ./bindings/go/` and `swift test` are clean. No CI job
+      runs either, and both compile `src/`, so a grammar or scanner
+      change can break them without touching `bindings/`.
 - [ ] `CHANGELOG.md` has a `## [x.y.z] - YYYY-MM-DD` section with
       the release notes. The header must match the tag exactly,
       minus the leading `v`. Move entries out of `## [Unreleased]`
@@ -374,8 +390,10 @@ file must include the suffix exactly.
 There is **no automatic skip** of registry uploads for pre-release
 tags in this pipeline. If you
 push `v0.1.0-rc1`, the pipeline will try to publish to crates.io,
-npm, and PyPI. crates.io and PyPI uploads are **irrevocable**; an
-`-rc` upload squats on that version forever.
+npm, and PyPI. crates.io and npm never accept a version number
+twice, and PyPI never accepts the same filename twice, so an `-rc`
+upload uses that version up for good, even if it is later yanked,
+deleted, or unpublished.
 
 **Recommended: gate the publish jobs before doing any rehearsal.**
 Add a `prerelease` output to `validate` (set to `true` when the
@@ -388,19 +406,24 @@ tags a safe rehearsal channel that still exercises `validate`,
 
 Until that gate exists, the options are:
 
-1. **Re-run an existing tag**: requires a `workflow_dispatch:`
-   trigger; the current `release.yml` is push-only, so add a
-   `workflow_dispatch:` line under `on:` before relying on this.
+1. **Re-run an already-released tag** with
+   `gh workflow run release.yml --ref vX.Y.Z`. It runs the workflow
+   and code *as of that tag*, not your pending changes, so it
+   rehearses nothing new. `v0.1.0` through `v0.2.0` fail in `test`
+   because they pin the retired `macos-14` runner. For later tags
+   everything rebuilds, the publish steps skip because the version
+   exists, and `github-release` fails because the release already
+   exists.
 2. **Dry run in a fork**: create a throwaway tag in a fork that
    has no Trusted Publisher registrations on any of the three
    registries. The publish steps fail fast on auth, but
-   `validate`, `test`, `npm-prebuilds`, `pypi-wheels`, and
-   `pypi-sdist` exercise the full build matrix.
+   `validate`, `test`, `crates-package`, `npm-prebuilds`,
+   `pypi-wheels`, and `pypi-sdist` exercise the full build matrix.
 3. **Burn-a-version pre-release**: bump the metadata to the
    suffixed version, ensure `CHANGELOG.md` has the matching
-   section, tag, and push. Be aware crates.io yank and PyPI
-   delete are scoped operations (the version stays reserved) —
-   re-uploading the same version is not possible.
+   section, tag, and push. Be aware that crates.io yank, PyPI
+   delete, and npm unpublish free nothing for re-upload — the
+   version is used up either way.
 
 ## Monitoring a live release
 
@@ -416,15 +439,24 @@ Common failure signatures and what they mean:
 | Failure | Cause |
 |---------|-------|
 | `Tag 'vX' is not a valid SemVer 2 version` | The tag isn't SemVer 2; re-tag. |
-| `Version mismatch: tag=… tree-sitter.json=…` | One of the four metadata files drifted. Re-run `make version` and commit. |
-| `package-lock.json name is …, expected …` | Run `npm install --package-lock-only` and commit. |
+| `Version mismatch: tag=… tree-sitter.json=…` | One of the four metadata files drifted. Re-run `make version`, commit, and re-tag. |
+| `package-lock.json name is …, expected …` | Run `npm install --package-lock-only`, commit, and re-tag. |
 | `CHANGELOG.md is missing a section for X.Y.Z` | Add a `## [X.Y.Z]` heading on the tagged commit. Editing `main` after tagging does not help — re-tag. |
-| `tree-sitter test` failures in `test` job | The committed `src/parser.c` was generated by a different CLI version. Regenerate locally with `npx tree-sitter generate`. |
+| `git diff --exit-code` fails right after `tree-sitter generate` in the `test` job | The committed `src/parser.c`, `src/grammar.json`, or `src/node-types.json` is stale or was generated by a different CLI version. Regenerate with a CLI matching the lockfile, commit, and re-tag. |
+| `cannot update the lock file … because --locked was passed` in `crates-package` | `Cargo.lock` still has the old version. Run `cargo update --workspace --offline`, commit, and re-tag. |
+| Other `cargo publish --dry-run` failures in `crates-package` | The crate doesn't package, or doesn't compile from its package — often a file missing from `include` in `Cargo.toml`. Nothing was uploaded; fix it and re-tag. |
 | crates.io `auth` step claims mismatch | Trusted publisher on crates.io was registered against the wrong owner / repo / workflow / environment. |
 | PyPI `gh-action-pypi-publish` 4xx | Pending publisher not registered, or the project name on PyPI is owned by a different publisher. |
 | `npm publish` OIDC / 4xx | Trusted publisher on npmjs.com missing, or its claims (owner, repo, workflow, environment) don't match the runner. Verify the entry on the package's trusted publisher page. |
-| `npm publish` "npm CLI does not support trusted publishing" | The runner's npm is older than 11.5.1. The `Install npm with Trusted Publishing support` step in `npm-publish` should prevent this; if it surfaces, the step's `npm@^11.5.1` pin regressed or its version guard was removed. |
+| `npm … is below the 11.5.1 minimum required for Trusted Publishing` | The runner image's npm regressed below 11.5.1, the first release with Trusted Publishing. The `Verify npm supports Trusted Publishing` step in `npm-publish` stops the job before `npm publish` runs. Bump `node-version` to a Node release that bundles a newer npm. |
 | `Empty release notes for X.Y.Z` | The `## [X.Y.Z]` heading exists but has no body. Add content under it. |
+
+"Re-tag" means deleting the tag and creating it again on the fixed
+commit. That's safe only while no registry has the version, and
+even then with one caveat: if anyone fetched the tag through the Go
+module proxy, the proxy and Go's checksum database keep the content
+they first saw, so Go users keep getting the old commit or hit a
+checksum mismatch. When in doubt, bump to the next patch instead.
 
 ## Post-release verification
 
@@ -473,18 +505,34 @@ cargo build
 # Python — install wheel-only first to confirm the wheel actually built
 # and resolves on this platform; cibuildwheel is the bulk of the
 # release work and an sdist-only install would mask a wheel regression.
-python3 -m venv /tmp/ts-irules-check-py && source /tmp/ts-irules-check-py/bin/activate
+python3 -m venv --clear /tmp/ts-irules-check-py && source /tmp/ts-irules-check-py/bin/activate
 pip install --only-binary=:all: "tree-sitter-irules==${VERSION}"
 python3 -c 'import tree_sitter_irules as g; print(g.language())'
+deactivate
+
+# Python sdist — what installs on platforms with no wheel. Needs a C
+# compiler and Python headers. 0.1.0 through 0.2.0 shipped unbuildable
+# sdists because nothing installed one (#80). --no-cache-dir stops pip
+# from reusing a wheel it built from the sdist on an earlier run.
+python3 -m venv --clear /tmp/ts-irules-check-sdist && source /tmp/ts-irules-check-sdist/bin/activate
+pip install --no-cache-dir --no-binary=tree-sitter-irules "tree-sitter-irules==${VERSION}"
+python3 -c 'import tree_sitter_irules as g; print(g.language())'
+deactivate
+
+# Go — confirms the module proxy serves the tag.
+GOPROXY=https://proxy.golang.org go list -m "github.com/dekobon/tree-sitter-irules@${TAG}"
 ```
 
-Go and Swift do not need verification beyond the tag being
-present and the test job passing — they fetch from the Git ref.
+Swift fetches from the Git ref, so the tag being present is all
+there is to check after release. Neither binding is tested by the
+pipeline; that happens in the pre-release checklist.
 
 ## Fixing a broken release
 
 The pipeline fails *before* publish on any validate, test, or build
-error, so a broken release almost never reaches users.
+error, so a broken release almost never reaches crates.io, npm, or
+PyPI. Go and Swift consumers get the tag as soon as it is pushed,
+whatever the pipeline does.
 
 The three publish jobs (`crates-publish`, `npm-publish`,
 `pypi-publish`) start together once every build has passed, then
@@ -507,13 +555,14 @@ indistinguishable from a tag push for everything downstream. Only
 dispatch from a *tag* ref — branch refs fail `validate` with a
 "not a valid SemVer 2 version" error.
 
-**Caveat**: GitHub Actions resolves the workflow file from the ref
-being dispatched, not from `main`. `workflow_dispatch:` therefore
-only works on tags whose ref commit includes the trigger — i.e.,
-tags created *after* the commit that added `workflow_dispatch:` to
-`release.yml`. For older tags lacking the trigger, the only
-recourse is the tag-delete-and-re-push dance, or creating the
-GitHub Release by hand.
+**Caveat**: GitHub Actions runs the workflow file and builds the
+code *as they exist at the dispatched tag*, not on `main`. A re-run
+therefore can't pick up a fix to `release.yml` or to the code; once
+any registry has the version, those need the next patch release.
+Every tag from `v0.1.0` on includes the `workflow_dispatch:`
+trigger, but `v0.1.0` through `v0.2.0` can't be re-run
+successfully: they pin the retired `macos-14` runner, so `test`
+fails.
 
 The fix then depends on which job failed:
 
@@ -531,11 +580,12 @@ The fix then depends on which job failed:
   workflow on the same tag is idempotent — it uploads if the prior
   attempt never reached npm and no-ops if it did. (The guard exists
   because `npm publish` on its own rejects a duplicate version
-  outright, which would fail the job and skip `github-release`.) If
-  you instead need to *replace* an already-published artifact, `npm
-  unpublish tree-sitter-irules@X.Y.Z` is allowed within 24 hours of
-  upload; after that the version is immutable — bump to the next
-  patch and re-tag.
+  outright, which would fail the job and skip `github-release`.) A
+  published npm version can't be *replaced*: npm never accepts a
+  `package@version` twice, even after `npm unpublish` (see npm's
+  [unpublish policy](https://docs.npmjs.com/policies/unpublish) for
+  when that is allowed). Bump to the next patch and tag that
+  instead.
 - **`github-release` failed**: re-run via
   `gh workflow run release.yml --ref vX.Y.Z`, or create the release
   by hand with `gh release create vX.Y.Z --notes-file
@@ -545,15 +595,21 @@ If you need to pull a release entirely:
 
 ```bash
 gh release delete vX.Y.Z --cleanup-tag --yes
-# crates.io: cargo yank --version X.Y.Z (does NOT free the name)
-# PyPI:      pip-side deletion via the web UI (does NOT free the name)
-# npm:       npm unpublish tree-sitter-irules@X.Y.Z (within 24h)
+# crates.io: cargo yank --version X.Y.Z
+# PyPI:      yank (or delete) the release in the project's web UI
+# npm:       npm unpublish tree-sitter-irules@X.Y.Z
+#              (within 72 hours if nothing depends on it; later only with
+#              no dependents, <300 downloads/week, and a single maintainer)
+#            npm deprecate tree-sitter-irules@X.Y.Z "<reason>"   (otherwise)
+# Go:        add `retract vX.Y.Z` to go.mod in the next release
 ```
 
-Then fix the underlying issue, bump to `vX.Y.(Z+1)`, and re-tag.
-**Do not re-use a published version number** — crates.io and PyPI
-will refuse, and npm consumers may have already cached the old
-artefacts even if you unpublished within the window.
+None of these frees the version number. Then fix the underlying
+issue, bump to `vX.Y.(Z+1)`, and tag that. **Do not re-use a
+published version number** — crates.io and npm refuse it (npm even
+after an unpublish), PyPI refuses any filename it has seen, and once
+the Go module proxy has fetched a tag it keeps serving it after the
+tag is deleted.
 
 ## Known gaps
 
@@ -561,17 +617,20 @@ artefacts even if you unpublished within the window.
   publishes to crates.io / npm / PyPI just like a stable tag.
   If you need rehearsal without external uploads, use a fork or
   add a `prerelease`-aware `if:` to the publish jobs.
-- **No WASM artefact on the Release.** `tree-sitter build --wasm`
-  runs on `npm start` but is not built or uploaded by `release.yml`.
-  Editor integrations that pull the WASM blob fetch it from the
-  npm tarball instead.
+- **No WASM artefact anywhere.** `tree-sitter build --wasm` runs on
+  `npm start`, but `release.yml` never builds it, so neither the
+  GitHub Release nor the npm tarball ships one, despite `*.wasm` in
+  `package.json` `files`. Editor integrations that need WASM must
+  build it from source.
 - **No signature on the GitHub Release assets — intentionally.**
-  The npm publish carries SLSA provenance via `--provenance`;
-  crates.io and PyPI carry their own provenance via Trusted
-  Publishing. Adding a minisign signature on the `github-release`
-  job's tarball would require a long-lived signing key as a repo
-  secret, weakening the otherwise-zero-secret posture without
-  adding meaningful integrity guarantees beyond what the three
-  registry attestations already provide. Consumers should pull
+  The npm publish carries SLSA provenance via `--provenance`, and
+  `gh-action-pypi-publish` attaches PEP 740 attestations to the PyPI
+  upload by default. crates.io has no attestation support; Trusted
+  Publishing there only removes the long-lived API token. Adding a
+  minisign signature on the `github-release` job's tarball would
+  require a long-lived signing key as a repo secret, weakening the
+  otherwise-zero-secret posture without adding meaningful integrity
+  guarantees beyond what the npm and PyPI attestations already
+  provide. Consumers should pull
   from the named registries, not the GitHub release tarball, when
   integrity matters.
