@@ -43,8 +43,9 @@ One push of a `v*` tag runs this end-to-end:
    WASM blob, the queries, the bindings, and the generated parser
    source.
 6. **pypi-wheels** / **pypi-sdist** — builds abi3 wheels via
-   `cibuildwheel` on each OS and an sdist via `python -m build
-   --sdist`.
+   `cibuildwheel` on each OS and an sdist via `python -m build`, which
+   also builds a throwaway wheel from that sdist so an unbuildable sdist
+   fails the job instead of reaching PyPI.
 7. **pypi-publish** — gathers wheels + sdist into `dist/` and
    publishes `tree-sitter-irules` to PyPI via
    `pypa/gh-action-pypi-publish` (Trusted Publishing).

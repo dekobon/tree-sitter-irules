@@ -4,17 +4,22 @@ from platform import system
 from setuptools import Extension, find_packages, setup
 from setuptools.command.bdist_wheel import bdist_wheel
 from setuptools.command.build import build
+from setuptools.command.egg_info import egg_info
+from setuptools.errors import FileError
 
 
 class Build(build):
     # Queries live at the repo root (`queries/irules/*.scm`), outside
     # the Python package source tree, so `package_data` cannot reach
     # them. Copy them into `build_lib` here; the wheel-builder then
-    # includes them under `tree_sitter_irules/queries/irules/`.
+    # includes them under `tree_sitter_irules/queries/irules/`. A missing
+    # directory is an error rather than a skip: skipping silently produced
+    # wheels without queries from incomplete sdists (#80).
     def run(self):
-        if isdir("queries"):
-            dest = join(self.build_lib, "tree_sitter_irules", "queries")
-            self.copy_tree("queries", dest)
+        if not isdir("queries"):
+            raise FileError("queries/ not found; refusing to build a wheel without queries")
+        dest = join(self.build_lib, "tree_sitter_irules", "queries")
+        self.copy_tree("queries", dest)
         super().run()
 
 
@@ -26,11 +31,27 @@ class BdistWheel(bdist_wheel):
         return python, abi, platform
 
 
+class EggInfo(egg_info):
+    # The sdist manifest only picks up Extension sources and package_data
+    # on its own. Without these, a wheel built from the sdist fails to
+    # compile (no tree_sitter/parser.h) and `Build` has no queries to copy.
+    def find_sources(self):
+        super().find_sources()
+        self.filelist.include("src/tree_sitter/*.h")
+        self.filelist.graft("queries")
+
+
 setup(
     packages=find_packages("bindings/python"),
     package_dir={"": "bindings/python"},
     package_data={
         "tree_sitter_irules": ["*.pyi", "py.typed"],
+    },
+    # binding.c sits in the package directory, so include_package_data
+    # would otherwise install it into site-packages beside the compiled
+    # module. It still reaches the sdist as an Extension source.
+    exclude_package_data={
+        "tree_sitter_irules": ["*.c"],
     },
     ext_package="tree_sitter_irules",
     ext_modules=[
@@ -54,7 +75,8 @@ setup(
     ],
     cmdclass={
         "build": Build,
-        "bdist_wheel": BdistWheel
+        "bdist_wheel": BdistWheel,
+        "egg_info": EggInfo,
     },
     zip_safe=False
 )

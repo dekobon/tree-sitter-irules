@@ -291,9 +291,11 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.11"
       - run: python -m pip install --upgrade build
-      - run: python -m build --sdist
+      # Also builds a wheel from the sdist, proving the uploaded sdist is
+      # buildable; only dist/*.tar.gz is uploaded.
+      - run: python -m build
       - uses: actions/upload-artifact@v7
         with:
           name: sdist
