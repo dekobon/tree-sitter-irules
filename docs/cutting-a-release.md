@@ -24,17 +24,20 @@ One push of a `v*` tag runs this end-to-end:
    `tree-sitter-cli` ref is resolved from
    `package-lock.json` so the CI parser matches the committed
    `src/parser.c`.
-3. **crates-publish** — authenticates to crates.io via
+3. **crates-package** — runs `cargo publish --dry-run --locked`,
+   which packages the crate and compiles it from the package as the
+   real publish does, then stops before uploading.
+4. **crates-publish** — authenticates to crates.io via
    [Trusted Publishing](https://crates.io/docs/trusted-publishing)
    (OIDC), then runs `cargo publish --locked` for
    `tree-sitter-irules`. The job queries the sparse index
    first and skips idempotently if the version is already on
    crates.io (so `workflow_dispatch` re-runs on the same tag don't
    error out on the duplicate upload).
-4. **npm-prebuilds** — builds Node.js N-API prebuilds for Linux,
+5. **npm-prebuilds** — builds Node.js N-API prebuilds for Linux,
    macOS, and Windows via `prebuildify --napi --strip`, and uploads
    them as artefacts.
-5. **npm-publish** — downloads every prebuild into `prebuilds/`,
+6. **npm-publish** — downloads every prebuild into `prebuilds/`,
    then runs `npm publish --provenance --access public` for
    `tree-sitter-irules`. The step first queries the registry and
    skips if that version is already on npm, so — like
@@ -42,21 +45,28 @@ One push of a `v*` tag runs this end-to-end:
    idempotent. The package's `files` array ships the prebuilds, the
    WASM blob, the queries, the bindings, and the generated parser
    source.
-6. **pypi-wheels** / **pypi-sdist** — builds abi3 wheels via
+7. **pypi-wheels** / **pypi-sdist** — builds abi3 wheels via
    `cibuildwheel` on each OS and an sdist via `python -m build`, which
    also builds a throwaway wheel from that sdist so an unbuildable sdist
    fails the job instead of reaching PyPI.
-7. **pypi-publish** — gathers wheels + sdist into `dist/` and
+8. **pypi-publish** — gathers wheels + sdist into `dist/` and
    publishes `tree-sitter-irules` to PyPI via
    `pypa/gh-action-pypi-publish` (Trusted Publishing).
-8. **github-release** — runs after crates/npm/PyPI publish succeed.
+9. **github-release** — runs after crates/npm/PyPI publish succeed.
    Extracts the matching `## [x.y.z]` section from `CHANGELOG.md`
    with an `awk` script and creates the GitHub Release via
    `gh release create --verify-tag`.
 
-If any stage fails, nothing downstream runs. `crates-publish`,
-`npm-publish`, `pypi-publish`, and `github-release` are the only
-jobs that mutate anything outside this repo.
+If any stage fails, nothing downstream runs. The publish jobs also
+wait for *every* build, not just their own: `crates-publish`,
+`npm-publish`, and `pypi-publish` all need `test`, `crates-package`,
+`npm-prebuilds`, `pypi-wheels`, and `pypi-sdist`. A broken wheel
+build therefore stops the crates.io and npm uploads too. Without
+that, both registries would already hold a version that PyPI could
+only get by fixing the code and releasing the next patch.
+`crates-publish`, `npm-publish`, `pypi-publish`, and
+`github-release` are the only jobs that mutate anything outside
+this repo.
 
 ## Prerequisites (one-time setup)
 
@@ -473,13 +483,16 @@ present and the test job passing — they fetch from the Git ref.
 
 ## Fixing a broken release
 
-The pipeline fails *before* publish on any validate or test error,
-so a broken release almost never reaches users.
+The pipeline fails *before* publish on any validate, test, or build
+error, so a broken release almost never reaches users.
 
 The three publish jobs (`crates-publish`, `npm-publish`,
-`pypi-publish`) run in parallel — a failure in one does not abort
-the others. Diagnosing a partial success therefore means looking
-at each job independently.
+`pypi-publish`) start together once every build has passed, then
+run in parallel — a failure in one does not abort the others. A
+partial success therefore comes from a publish step itself (Trusted
+Publishing auth, a registry outage, an upload error), which a re-run
+on the same tag can finish once the cause is fixed. Diagnosing one
+means looking at each job independently.
 
 Re-running the workflow on the same tag is supported via the
 `workflow_dispatch:` trigger:

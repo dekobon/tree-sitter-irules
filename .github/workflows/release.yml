@@ -135,6 +135,22 @@ jobs:
           test-rust: true
           rust-version: "1.94"
 
+  # `cargo publish` packages the crate and compiles it from the package
+  # before uploading. Doing that here, with the same toolchain, moves
+  # those failures in front of the publish gate. The dry run only warns
+  # when the version is already on crates.io, so re-runs on the same
+  # tag still pass.
+  crates-package:
+    name: Package crate
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc
+        with:
+          toolchain: "1.94"
+      - run: cargo publish --dry-run --locked
+
   # Authentication is via crates.io Trusted Publishing (OIDC): the
   # `auth` step exchanges the runner's GitHub-minted ID token for a
   # short-lived registry token scoped to this run, which the publish
@@ -149,7 +165,20 @@ jobs:
   # idempotent.
   crates-publish:
     name: Publish to crates.io
-    needs: [validate, test]
+    # Every publish job waits for every build, not only its own.
+    # crates.io and npm never accept the same version twice, so without
+    # this a failed wheel build would leave X.Y.Z on both of them, and
+    # PyPI could only get the fix in the next patch release. With it, a
+    # publish can fail only in its own step (auth, a registry outage),
+    # which a re-run on the same tag recovers. npm-publish and
+    # pypi-publish reuse this list.
+    needs: &publish-gate
+      - validate
+      - test
+      - crates-package
+      - npm-prebuilds
+      - pypi-wheels
+      - pypi-sdist
     runs-on: ubuntu-latest
     # Binds the OIDC `environment` claim so the crates.io trusted
     # publisher only accepts JWTs minted while this job runs in the
@@ -214,7 +243,7 @@ jobs:
   # the CLI floor in case a future runner image regresses.
   npm-publish:
     name: Publish to npm
-    needs: [validate, npm-prebuilds]
+    needs: *publish-gate
     runs-on: ubuntu-latest
     environment: release
     permissions:
@@ -304,7 +333,7 @@ jobs:
 
   pypi-publish:
     name: Publish to PyPI
-    needs: [pypi-wheels, pypi-sdist]
+    needs: *publish-gate
     runs-on: ubuntu-latest
     environment: release
     permissions:
