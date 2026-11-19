@@ -156,3 +156,51 @@ jobs:
           fi
       - uses: tree-sitter/fuzz-action@6a1dcff00aefd038ba418bd63732a9add4901266 # v4
         if: steps.scanner-changes.outputs.changed == 'true'
+
+  python-sdist:
+    name: Python sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade build
+      # With no flags, `build` makes the sdist and then builds the wheel
+      # from that sdist, so a file missing from the sdist fails here.
+      - run: python -m build
+      # Expected files come from the checkout so a new query file is
+      # required automatically. `Build` skips absent queries silently, so
+      # a successful build alone does not prove the wheel has them.
+      - name: Check sdist and wheel contents
+        shell: python
+        run: |
+          import glob
+          import sys
+          import tarfile
+          import zipfile
+
+          headers = set(glob.glob("src/tree_sitter/*.h"))
+          queries = set(glob.glob("queries/**/*.scm", recursive=True))
+          if not headers or not queries:
+              sys.exit("No headers or queries found in the checkout; update this check.")
+
+          (sdist,) = glob.glob("dist/*.tar.gz")
+          (wheel,) = glob.glob("dist/*.whl")
+          with tarfile.open(sdist) as tf:
+              in_sdist = {n.split("/", 1)[1] for n in tf.getnames() if "/" in n}
+          with zipfile.ZipFile(wheel) as zf:
+              in_wheel = set(zf.namelist())
+
+          missing = [f"sdist: {p}" for p in sorted((headers | queries) - in_sdist)]
+          missing += [
+              f"wheel: {p}"
+              for p in sorted({f"tree_sitter_irules/{q}" for q in queries} - in_wheel)
+          ]
+          if missing:
+              sys.exit("Missing from the Python distributions:\n  " + "\n  ".join(missing))
+          print(f"OK: {len(headers)} headers and {len(queries)} queries packaged")
+      - run: python -m pip install "$(ls dist/*.whl)[core]"
+      # An explicit file rather than `discover`: on 3.11, `discover`
+      # exits 0 when it finds no tests.
+      - run: python -m unittest -v bindings/python/tests/test_binding.py
