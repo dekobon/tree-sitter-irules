@@ -95,6 +95,8 @@ the README "Known limitations" section (`set static::foo bar`, partial
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-19
+
 ### Fixed
 
 - The Python sdist now includes the vendored `src/tree_sitter/*.h` headers
@@ -440,6 +442,8 @@ is retained alongside a new project copyright.
 - Docs: README "TLS" namespace group now lists the `TLS` namespace
   itself (named in the regex but missing from the group cell).
 
-[Unreleased]: https://github.com/dekobon/tree-sitter-irules/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/dekobon/tree-sitter-irules/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/dekobon/tree-sitter-irules/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/dekobon/tree-sitter-irules/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/dekobon/tree-sitter-irules/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/dekobon/tree-sitter-irules/releases/tag/v0.1.0
