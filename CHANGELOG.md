@@ -95,6 +95,14 @@ the README "Known limitations" section (`set static::foo bar`, partial
 
 ## [Unreleased]
 
+### Fixed
+
+- The Python sdist now includes the vendored `src/tree_sitter/*.h` headers
+  and the `queries/` files, so installing from source works on platforms
+  with no prebuilt wheel (e.g. Linux aarch64, macOS x86_64). Every
+  previously published sdist (0.1.0, 0.1.1, 0.2.0) was unbuildable, failing
+  with `tree_sitter/parser.h: No such file or directory` (#80).
+
 ## [0.2.0] - 2026-08-30
 
 ### Changed

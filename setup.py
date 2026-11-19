@@ -4,6 +4,7 @@ from platform import system
 from setuptools import Extension, find_packages, setup
 from setuptools.command.bdist_wheel import bdist_wheel
 from setuptools.command.build import build
+from setuptools.command.egg_info import egg_info
 
 
 class Build(build):
@@ -24,6 +25,16 @@ class BdistWheel(bdist_wheel):
         if python.startswith("cp"):
             python, abi = "cp311", "abi3"
         return python, abi, platform
+
+
+class EggInfo(egg_info):
+    # The sdist manifest only picks up Extension sources and package_data
+    # on its own. Without these, a wheel built from the sdist fails to
+    # compile (no tree_sitter/parser.h) and `Build` has no queries to copy.
+    def find_sources(self):
+        super().find_sources()
+        self.filelist.include("src/tree_sitter/*.h")
+        self.filelist.recursive_include("queries", "*.scm")
 
 
 setup(
@@ -54,7 +65,8 @@ setup(
     ],
     cmdclass={
         "build": Build,
-        "bdist_wheel": BdistWheel
+        "bdist_wheel": BdistWheel,
+        "egg_info": EggInfo,
     },
     zip_safe=False
 )
